@@ -1,0 +1,3630 @@
+openapi: 3.0.3
+info:
+  title: final-project-b11
+  description: |-
+    MOOC (Massive Open Online Course) app is a versatile online learning platform that offers open and extensive access to a diverse range of courses. Users can choose from high-quality courses taught by expert instructors from top educational institutions worldwide. The app provides flexible, affordable, and accessible learning experiences, allowing users to study at their own pace and convenience.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api/v1
+  - url: https://bingwa-b11.vercel.app/api/v1
+  - url: https://nodejsglove2040.stack-ap2.st4as.com/api/v1
+tags:
+  - name: Users
+    description: Operations about user
+  - name: UserProfiles
+    description: Operations about UserProfile
+  - name: Categories
+    description: Operations about Category
+  - name: Courses
+    description: Operations about Course
+  - name: Chapters
+    description: Operations about Chapter
+  - name: Lessons
+    description: Operations about Lesson
+  - name: Enrollments
+    description: Operations about Enrollment
+  - name: Reviews
+    description: Operations about Review
+  - name: Promotions
+    description: Operations about Promotion
+  - name: Notifications
+    description: Operations about Notification
+  - name: Trackings
+    description: Operations about Tracking
+  - name: Payments
+    description: Operations about Payment
+  - name: Admin
+    description: Operations about detail informaton class
+paths:
+  /users/register:
+    post:
+      tags:
+        - Users
+      operationId: post-register-user
+      summary: Register user
+      description: Register user with the provided information.
+      requestBody:
+        $ref: "#/components/requestBodies/Register"
+      responses:
+        "201":
+          description: User registration was successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          newUser:
+                            $ref: "#/components/schemas/UserModel"
+                          newUserProfile:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                example: 1
+                              profilePicture:
+                                type: string
+                                example: null
+                              fullName:
+                                type: string
+                                example: "Budi Cahyono"
+                              phoneNumber:
+                                type: string
+                                example: "08123456789"
+                              city:
+                                type: string
+                                example: null
+                              country:
+                                type: string
+                                example: null
+                              userId:
+                                type: integer
+                                example: 1
+        "409":
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+  /users/login:
+    post:
+      tags:
+        - Users
+      operationId: post-login-user
+      summary: Login user
+      description: Login user with the provided information.
+      requestBody:
+        $ref: "#/components/requestBodies/Login"
+      responses:
+        "200":
+          description: User Login was successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                example: 1
+                              emailOrPhoneNumber:
+                                type: string
+                                example: "budi@mail.com"
+                              password:
+                                type: string
+                                example: "$2b$10$wpqr1W8aUNCN7BZZ3o6sz.meX9rB/aItp5Mw/0q7GaRmJbsU2GGbK"
+                              otp:
+                                type: string
+                                example: "012345"
+                              otpCreatedAt:
+                                type: string
+                                example: "2023-12-04T03:09:21.254Z"
+                              isVerified:
+                                type: boolean
+                                example: true
+                              role:
+                                type: string
+                                example: "user"
+                              resetPasswordToken:
+                                type: string
+                                example: null
+                              googleId:
+                                type: string
+                                example: null
+                          token:
+                            type: string
+                            example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjk4Njk0MzI1fQ.mexfgD-aW24iYvoWYWQJWSv7AbJ5EqyIDrHS6iCk-d0"
+        "401":
+          description: invalid email or password!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Account not verified
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+  /users/verify-otp:
+    put:
+      tags:
+        - Users
+      operationId: put-verify-otp-user
+      summary: Verify otp user
+      description: Verify otp user
+      requestBody:
+        $ref: "#/components/requestBodies/VerifyOtp"
+      responses:
+        "200":
+          description: Verify otp user was successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                example: 1
+                              email:
+                                type: string
+                                example: "budi@mail.com"
+                              password:
+                                type: string
+                                example: "$2b$10$wpqr1W8aUNCN7BZZ3o6sz.meX9rB/aItp5Mw/0q7GaRmJbsU2GGbK"
+                              otp:
+                                type: string
+                                example: "012345"
+                              otpCreatedAt:
+                                type: string
+                                example: "2023-12-04T03:09:21.254Z"
+                              isVerified:
+                                type: boolean
+                                example: true
+                              role:
+                                type: string
+                                example: "user"
+                              resetPasswordToken:
+                                type: string
+                                example: null
+                              googleId:
+                                type: string
+                                example: null
+        "401":
+          description: Invalid OTP
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+  /users/resend-otp:
+    put:
+      tags:
+        - Users
+      operationId: put-resend-otp-user
+      summary: Resend otp user
+      description: Resend otp user
+      requestBody:
+        $ref: "#/components/requestBodies/ResendOtp"
+      responses:
+        "200":
+          description: Resend otp user was successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: "#/components/schemas/UserModel"
+  /users/forget-password:
+    post:
+      tags:
+        - Users
+      operationId: post-forget-password-user
+      summary: Forget Password user
+      description: Forget Password user
+      requestBody:
+        $ref: "#/components/requestBodies/ForgetPassword"
+      responses:
+        "200":
+          description: Email sent successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          email:
+                            type: string
+                            example: "budi@mail.com"
+                          token:
+                            type: string
+                            example: "$2b$10$wpqr1W8aUNCN7BZZ3o6sz.meX9rB/aItp5Mw/0q7GaRmJbsU2GGbK"
+        "404":
+          description: Email not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+  /users/update-password:
+    put:
+      tags:
+        - Users
+      operationId: put-update-password-user
+      summary: Update password user
+      description: Update password user
+      parameters:
+        - name: token
+          in: query
+          description: token for update password
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: "#/components/requestBodies/UpdatePassword"
+      responses:
+        "200":
+          description: Email sent successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          updatedUser:
+                            $ref: "#/components/schemas/UserModel"
+        "400":
+          description: The password and password confirmation fields must match
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Please ensure that the password and password confirmation match!"
+  /users/authenticate:
+    get:
+      tags:
+        - Users
+      operationId: get-user-by-authenticate
+      summary: Get user by authenticate
+      description: Get user by authenticate
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            allOf:
+                              - $ref: "#/components/schemas/UserModel"
+                              - type: object
+                                properties:
+                                  userProfile:
+                                    allOf:
+                                      - $ref: "#/components/schemas/UserProfileModel"
+
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+  /users/change-password:
+    put:
+      tags:
+        - Users
+      operationId: put-change-password-user-by-authenticate
+      summary: Put Change Password User By Authenticate
+      description: Put Change Password User By Authenticate
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: "#/components/requestBodies/ChangePassword"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          updatedUser:
+                            $ref: "#/components/schemas/UserProfileModel"
+        "400":
+          description: The password and password confirmation fields must match
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Please ensure that the new password and confirmation match!"
+        "401":
+          description: Incorrect old password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Incorrect old password"
+  /users/google:
+    get:
+      tags:
+        - Users
+      operationId: get-login-user-with-google
+      summary: Initiate Google OAuth 2.0 Authentication
+      description: Redirects the user to Google for authentication.
+      security:
+        - google_oauth: []
+      responses:
+        "302":
+          description: Redirect to Google for authentication.
+  /users/google/callback:
+    get:
+      tags:
+        - Users
+      operationId: get-login-user-with-google-callback
+      summary: Google OAuth 2.0 Callback
+      description: Handles the callback after successful Google authentication.
+      parameters:
+        - name: code
+          in: query
+          required: true
+          description: Authorization code received from Google.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      err:
+                        type: string
+                        example: null
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            allOf:
+                              - type: object
+                                properties:
+                                  id:
+                                    type: integer
+                                    example: 1
+                                  email:
+                                    type: string
+                                    example: "budi@gmail.com"
+                                  password:
+                                    type: string
+                                    example: null
+                                  otp:
+                                    type: string
+                                    example: null
+                                  otpCreatedAt:
+                                    type: string
+                                    example: null
+                                  isVerified:
+                                    type: boolean
+                                    example: true
+                                  role:
+                                    type: string
+                                    example: "user"
+                                  resetPasswordToken:
+                                    type: string
+                                    example: null
+                                  googleId:
+                                    type: string
+                                    example: "0123456789"
+                          token:
+                            type: string
+                            example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjk4Njk0MzI1fQ.mexfgD-aW24iYvoWYWQJWSv7AbJ5EqyIDrHS6iCk-d0"
+  /user-profiles/update-profile:
+    put:
+      tags:
+        - UserProfiles
+      operationId: put-edit-user-by-authenticate
+      summary: Put Edit User By Authenticate
+      description: Put Edit User By Authenticate
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: "#/components/requestBodies/UpdateProfile"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          newUserProfile:
+                            $ref: "#/components/schemas/UserProfileModel"
+  /categories:
+    get:
+      tags:
+        - Categories
+      operationId: get-all-categories
+      summary: Get all categories
+      description: Get all categories
+      parameters:
+        - name: search
+          in: query
+          description: search for get categories
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          categories:
+                            type: array
+                            items:
+                              allOf:
+                                - $ref: "#/components/schemas/CategoryModel"
+    post:
+      tags:
+        - Categories
+      operationId: post-create-category
+      summary: Create Category
+      description: Create category with the provided information.
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: "#/components/requestBodies/CreateCategory"
+      responses:
+        "201":
+          description: Create category was successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          newCategory:
+                            $ref: "#/components/schemas/CategoryModel"
+        "400":
+          description: Bad Request field missing 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Please provide categoryName, and categoryImg"
+                  data :
+                    type: object
+                    example: null
+  /categories/{categoryId}:
+    put:
+      tags:
+        - Categories
+      operationId: put-category-by-id
+      summary: Put category by id
+      description: Edit category by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: categoryId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the category to retrieve.
+      requestBody:
+        $ref: "#/components/requestBodies/EditCategory"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          editedCategory:
+                            $ref: "#/components/schemas/CategoryModel"
+        "400":
+          description: Bad Request field missing 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Please provide categoryName, and categoryImg"
+                  data :
+                    type: object
+                    example: null
+    delete:
+      tags:
+        - Categories
+      operationId: delete-category-by-id
+      summary: Delete category by id
+      description: Delete category by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: categoryId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the category to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          deletedCategory:
+                            $ref: "#/components/schemas/CategoryModel"
+        "404":
+          description: Category Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Category Not Found"
+                  data :
+                    type: object
+                    example: null
+  /courses:
+    get:
+      tags:
+        - Courses
+      operationId: get-all-courses
+      summary: Get all courses
+      description: Get all courses
+      parameters:
+        - name: search
+          in: query
+          description: search for get courses
+          schema:
+            type: string
+        - name: filter
+          in: query
+          description: filter for get courses
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: category for get courses
+          schema:
+            type: string
+        - name: level
+          in: query
+          description: level for get courses
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Used to specify a particular page when retrieving course data
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Determines the limit of the number of courses to be returned in a single request.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          Pagination:
+                            $ref: "#/components/schemas/Pagination"
+                          courses:
+                            type: array
+                            items:
+                              allOf:
+                                - $ref: "#/components/schemas/CourseModel"
+                                - type: object
+                                  properties:
+                                    category:
+                                      type: object
+                                      properties:
+                                        categoryName:
+                                          type: string
+                                          example: "UI/UX Design"
+                                    enrollment:
+                                      type: array
+                                      items:
+                                        allOf:
+                                          - type: object
+                                            properties:
+                                              review:
+                                                type: object
+                                                properties:
+                                                  id:
+                                                    type: integer
+                                                    example: 1
+                                                  userRating:
+                                                    type: integer
+                                                    example: 5
+                                                  userComment:
+                                                    type: string
+                                                    example: "This course provides a comprehensive understanding. The instructor is clear and profound, and the combination of theory and practical case studies makes it highly applicable. Highly recommended"
+                                                  createdAt:
+                                                    type: string
+                                                    example: "19 Desember 2023"
+                                    modul:
+                                      type: integer
+                                      example: 5
+                                    totalReviews:
+                                      type: integer
+                                      example: 10
+    post:
+      tags:
+        - Courses
+      operationId: post-create-course
+      summary: Create course
+      description: Create course with the provided information.
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: "#/components/requestBodies/CreateCourse"
+      responses:
+        "201":
+          description: Create course was successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/CourseModel"
+        "400":
+          description: bad Request when Create Course
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+  /courses/me:
+    get:
+      tags:
+        - Courses
+      operationId: get-all-courses-enroll
+      summary: Get all courses by user enroll
+      description: Get all courses by user enroll
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: search for get courses
+          schema:
+            type: string
+        - name: filter
+          in: query
+          description: filter for get courses
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: category for get courses
+          schema:
+            type: string
+        - name: level
+          in: query
+          description: level for get courses
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          course:
+                            type: array
+                            items:
+                              allOf:
+                                - $ref: "#/components/schemas/CourseModelEnroll"
+                                - type: object
+                                  properties:
+                                    category:
+                                      allOf:
+                                        - $ref: "#/components/schemas/CategoryModel"
+                          courseNotEnrol:
+                            type: array
+                            items:
+                              allOf:
+                                - $ref: "#/components/schemas/CourseModelNotEnroll"
+                                - type: object
+                                  properties:
+                                    category:
+                                      allOf:
+                                        - $ref: "#/components/schemas/CategoryModel"
+  /courses/{courseId}/me:
+    get:
+      tags:
+        - Courses
+      operationId: get-courseEnrolUser-by-id
+      summary: get detail cpurse when user alredy enrol by id
+      description: get courseEnrolUser by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: courseId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the course to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          course:
+                            allOf:
+                              - $ref: "#/components/schemas/DetailCourseModelEnroll"
+                              - type: object
+                                properties:
+                                  chapter:
+                                    type: array
+                                    items:
+                                      allOf:
+                                        - $ref: "#/components/schemas/ChapterModel"
+                                        - type: object
+                                          properties:
+                                            lesson:
+                                              type: array
+                                              items:
+                                                $ref: "#/components/schemas/LessonModel"
+                                  category:
+                                    allOf:
+                                      - $ref: "#/components/schemas/CategoryModel"
+        "400":
+          description: You Not Enroll this course
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "You Not Enroll this course "
+  /courses/{courseId}:
+    get:
+      tags:
+        - Courses
+      operationId: get-course-by-id
+      summary: get course by id
+      description: get course by id
+      parameters:
+        - in: path
+          name: courseId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the course to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          course:
+                            allOf:
+                              - $ref: "#/components/schemas/CourseModel"
+                              - type: object
+                                properties:
+                                  category:
+                                    type: object
+                                    properties:
+                                      categoryName:
+                                        type: string
+                                        example: "UI/UX Design"
+                                  chapter:
+                                    type: array
+                                    items:
+                                      allOf:
+                                        - type: object
+                                          properties:
+                                            id:
+                                              type: integer
+                                              example: 1
+                                            name:
+                                              type: string
+                                              example: "Chapter 1 - Pendahuluan"
+                                            duration:
+                                              type: string
+                                              example: "90 Menit"
+                                            lesson:
+                                              type: array
+                                              items:
+                                                allOf:
+                                                  - type: object
+                                                    properties:
+                                                      id:
+                                                        type: integer
+                                                        example: 1
+                                                      lessonName:
+                                                        type: string
+                                                        example: "The Purpose of Taking Design System Classes 1"
+                                                      videoURL:
+                                                        type: string
+                                                        example: "https://youtu.be/ixOd42SEUF0"
+                                                      createdAt:
+                                                        type: string
+                                                        example: "19 Desember 2023"
+                                  enrollment:
+                                    type: object
+                                    properties:
+                                      review:
+                                        type: array
+                                        items:
+                                          allOf:
+                                            - $ref: "#/components/schemas/ReviewModel"
+                                  modul:
+                                    type: integer
+                                    example: 10
+        "400":
+          description: Course Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+    put:
+      tags:
+        - Courses
+      operationId: put-course-by-id
+      summary: Put course by id
+      description: Edit course by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: courseId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the course to retrieve.
+      requestBody:
+        $ref: "#/components/requestBodies/EditCourse"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          editedCourse:
+                            $ref: "#/components/schemas/CourseModel"
+        "404":
+          description: Course Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+    delete:
+      tags:
+        - Courses
+      operationId: delete-course-by-id
+      summary: delete course by id
+      description: Delete course by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: courseId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the course to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          deletedCourse:
+                            $ref: "#/components/schemas/CourseModel"
+  /chapters:
+    get:
+      tags:
+        - Chapters
+      operationId: get-all-chapters
+      summary: Get all chapters
+      description: Get all chapters
+      parameters:
+        - name: search
+          in: query
+          description: search for get chapters
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          chapters:
+                            type: array
+                            items:
+                              allOf:
+                                - $ref: "#/components/schemas/ChapterModel"
+                                - type: object
+                                  properties:
+                                    course:
+                                      type: object
+                                      properties:
+                                        courseName:
+                                          type: string
+                                          example: "The Purpose of Taking Design System Classes"
+                                        category:
+                                          type: object
+                                          properties:
+                                            categoryName:
+                                              type: string
+                                              example: "UI/UX Design"
+                                    lesson:
+                                      type: array
+                                      items:
+                                        allOf:
+                                          - type: object
+                                            properties:
+                                              lessonName:
+                                                type: string
+                                                example: "The Purpose of Taking Design System Classes"
+                                              videoURL:
+                                                type: string
+                                                example: "https://youtu.be/ixOd42SEUF0"
+                                              createdAt:
+                                                type: string
+                                                example: "19 Desember 2023"
+    post:
+      tags:
+        - Chapters
+      operationId: post-create-chapter
+      summary: Create chapter
+      description: Create chapter with the provided information.
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: "#/components/requestBodies/CreateChapter"
+      responses:
+        "201":
+          description: Create chapter was successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          newChapter:
+                            $ref: "#/components/schemas/ChapterModel"
+        "400":
+          description: Bad Request Some Field Missing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Please provide name, courseId, and duration"
+                               
+  /chapters/{chapterId}:
+    get:
+      tags:
+        - Chapters
+      operationId: get-chapter-by-id
+      summary: get chapter by id
+      description: get chapter by id
+      parameters:
+        - in: path
+          name: chapterId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the chapter to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          chapter:
+                            allOf:
+                              - $ref: "#/components/schemas/ChapterModel"
+                              - type: object
+                                properties:
+                                  lesson:
+                                    type: array
+                                    items:
+                                      allOf:
+                                        - type: object
+                                          properties:
+                                            lessonName:
+                                              type: string
+                                              example: "The Purpose of Taking Design System Classes"
+                                            videoURL:
+                                              type: string
+                                              example: "https://youtu.be/ixOd42SEUF0"
+                                            createdAt:
+                                              type: string
+                                              example: "19 Desember 2023"
+        "404":
+          description: Chapter Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+    put:
+      tags:
+        - Chapters
+      operationId: put-chapter-by-id
+      summary: Put chapter by id
+      description: Edit chapter by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chapterId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the Chapter to retrieve.
+      requestBody:
+        $ref: "#/components/requestBodies/EditChapter"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          updatedChapter:
+                            $ref: "#/components/schemas/ChapterModel"
+        "400":
+          description: Bad Request Some Field Missing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Please provide name, courseId, and duration"
+        "404":
+          description: Chapter Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+    delete:
+      tags:
+        - Chapters
+      operationId: delete-chapter-by-id
+      summary: delete chapter by id
+      description: Delete chapter by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: chapterId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the chapter to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          deletedChapter:
+                            $ref: "#/components/schemas/ChapterModel"
+        "404":
+          description: Chapter Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+  /lessons:
+    get:
+      tags:
+        - Lessons
+      operationId: get-all-lessons
+      summary: Get all lessons
+      description: Get all lessons
+      parameters:
+        - name: search
+          in: query
+          description: search for get chapters
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          lessons:
+                            type: array
+                            items:
+                              allOf:
+                                - $ref: "#/components/schemas/LessonModel"
+                                - type: object
+                                  properties:
+                                    chapter:
+                                      allOf:
+                                        - type: object
+                                          properties:
+                                            name:
+                                              type: string
+                                              example: "Chapter 1 - Pendahuluan"
+                                            course:
+                                              allOf:
+                                                - type: object
+                                                  properties:
+                                                    courseName:
+                                                      type: string
+                                                      example: "Intro to Basic of User Interaction Design"
+                                                    category:
+                                                      allOf:
+                                                        - type: object
+                                                          properties:
+                                                            categoryName:
+                                                              type: string
+                                                              example: "UI/UX Design"
+
+    post:
+      tags:
+        - Lessons
+      operationId: post-create-lesson
+      summary: Create lesson
+      description: Create lesson with the provided information.
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: "#/components/requestBodies/CreateLesson"
+      responses:
+        "201":
+          description: Create lesson was successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          newLesson:
+                            $ref: "#/components/schemas/LessonModel"
+        "400":
+          description: Bad Request Some Field Missing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Please provide lessonName, videoURL, and chapterId"
+        "404":
+          description: Request Field Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Chapter not found"
+                    
+  /lessons/filter:
+    get:
+      tags:
+        - Lessons
+      operationId: get-lessons
+      summary: Get lessons
+      description: Get lessons
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: chapter
+          in: query
+          description: chapter for get lessons
+          required: true
+          schema:
+            type: string
+        - name: lesson
+          in: query
+          description: lesson for get lessons
+          schema:
+            type: string
+        - name: course
+          in: query
+          description: course for get lessons
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          lessons:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/LessonModel"
+                              type: object
+                              properties:
+                                chapter:
+                                  $ref: "#/components/schemas/ChapterModel"
+  /lessons/{lessonId}:
+    get:
+      tags:
+        - Lessons
+      operationId: get-lesson-by-id
+      summary: get lesson by id
+      description: get lesson by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: lessonId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the lesson to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          lesson:
+                            allOf:
+                              - $ref: "#/components/schemas/LessonModel"
+                              - type: object
+                                properties:
+                                  chapter:
+                                    allOf:
+                                      - type: object
+                                        properties:
+                                          name:
+                                            type: string
+                                            example: "Chapter 1 - Pendahuluan"
+        "404":
+          description: Lesson Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+    put:
+      tags:
+        - Lessons
+      operationId: put-lesson-by-id
+      summary: Put lesson by id
+      description: Edit lesson by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: lessonId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the lesson to retrieve.
+      requestBody:
+        $ref: "#/components/requestBodies/EditLesson"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          updatedLesson:
+                            $ref: "#/components/schemas/LessonModel"
+        "404":
+          description: Lesson or Chapter Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+    delete:
+      tags:
+        - Lessons
+      operationId: delete-lesson-by-id
+      summary: delete lesson by id
+      description: Delete lesson by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: lessonId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the lesson to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          deletedLesson:
+                            $ref: "#/components/schemas/LessonModel"
+        "404":
+          description: Lesson Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+  /lessons/{courseId}/course:
+    get:
+      tags:
+        - Lessons
+      operationId: get-lessons-by-course
+      summary: get lessons by course
+      description: get lessons by course
+      parameters:
+        - in: path
+          name: courseId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the course to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: "#/components/schemas/ChapterModel"
+                            - type: object
+                              properties:
+                                lesson:
+                                  type: array
+                                  items:
+                                    allOf:
+                                      - $ref: "#/components/schemas/LessonModel"
+        "404":
+          description: Request Field Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Chapter not found"
+  /enrollments:
+    get:
+      tags:
+        - Enrollments
+      operationId: get-all-enrollments
+      summary: Get all enrollments
+      description: Get all enrollments
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          enrollments:
+                            type: array
+                            items:
+                              allOf:
+                                - $ref: "#/components/schemas/EnrollmentModel"
+                                - type: object
+                                  properties:
+                                    course:
+                                      allOf:
+                                        - $ref: "#/components/schemas/CourseModel"
+                                        - type: object
+                                          properties:
+                                            category:
+                                              $ref: "#/components/schemas/CategoryModel"
+                                            chapters:
+                                              type: array
+                                              items:
+                                                allOf:
+                                                  - $ref: "#/components/schemas/ChapterModel"
+                                                  - type: object
+                                                    properties:
+                                                      lesson:
+                                                        type: array
+                                                        items:
+                                                          $ref: "#/components/schemas/LessonModel"
+  /enrollments/{enrollmentId}:
+    get:
+      tags:
+        - Enrollments
+      operationId: get-enrollment-by-id
+      summary: get enrollment by id
+      description: get enrollment by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: enrollmentId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the enrollment to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          enrollment:
+                            allOf:
+                              - $ref: "#/components/schemas/EnrollmentModel"
+                              - type: object
+                                properties:
+                                  course:
+                                    allOf:
+                                      - $ref: "#/components/schemas/CourseModel"
+                                      - type: object
+                                        properties:
+                                          category:
+                                            $ref: "#/components/schemas/CategoryModel"
+                                          chapters:
+                                            type: array
+                                            items:
+                                              allOf:
+                                                - $ref: "#/components/schemas/ChapterModel"
+                                                - type: object
+                                                  properties:
+                                                    lesson:
+                                                      type: array
+                                                      items:
+                                                        $ref: "#/components/schemas/LessonModel"
+        "404":
+          description: Enrollment Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+  /enrollments/{courseId}:
+    post:
+      tags:
+        - Enrollments
+      operationId: create-enrollment-by-course
+      summary: create enrollment by course
+      description: create enrollment by course
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: courseId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the enrollment to retrieve.
+      responses:
+        "201":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          enrollCourse:
+                            allOf:
+                              - $ref: "#/components/schemas/EnrollmentModel"
+        "400":
+          description: User Already Enroll
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Enrollment Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+  /reviews/{courseId}:
+    post:
+      tags:
+        - Reviews
+      operationId: post-create-review
+      summary: post create review
+      description: post create review
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: courseId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the enrollment to retrieve.
+      requestBody:
+        $ref: "#/components/requestBodies/CreateReview"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          newReview:
+                            $ref: "#/components/schemas/ReviewModel"
+                          updatedCourse:
+                            type: object
+                            properties:
+                              averageRating:
+                                type: number
+                                format: float
+                                example: 4.7
+        "404":
+          description: Enrollment Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+  /promotions:
+    get:
+      tags:
+        - Promotions
+      operationId: get-all-promotions
+      summary: Get all promotions
+      description: Get all promotions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: search for get promotions
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          promotions:
+                            type: array
+                            items:
+                              allOf:
+                                - $ref: "#/components/schemas/PromotionModel"
+    post:
+      tags:
+        - Promotions
+      operationId: post-create-promotion
+      summary: Create promotion
+      description: Create promotion with the provided information.
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: "#/components/requestBodies/CreatePromotion"
+      responses:
+        "201":
+          description: Create promotion was successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          newPromotion:
+                            $ref: "#/components/schemas/PromotionModel"
+        "400":
+          description: Bad Request Some Field Missing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "All fields must be filled"
+  /promotions/{promotionId}:
+    get:
+      tags:
+        - Promotions
+      operationId: get-promotion-by-id
+      summary: get promotion by id
+      description: get promotion by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: promotionId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the promotion to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          promotion:
+                            allOf:
+                              - $ref: "#/components/schemas/PromotionModel"
+        "400":
+          description: Invalid Promotion ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Promotion Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+    put:
+      tags:
+        - Promotions
+      operationId: put-promotion-by-id
+      summary: Put promotion by id
+      description: Edit promotion by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: promotionId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the promotion to retrieve.
+      requestBody:
+        $ref: "#/components/requestBodies/EditPromotion"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          updatedPromotion:
+                            $ref: "#/components/schemas/PromotionModel"
+        "400":
+          description: Invalid Promotion ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Promotion Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+    delete:
+      tags:
+        - Promotions
+      operationId: delete-promotion-by-id
+      summary: delete promotion by id
+      description: Delete promotion by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: promotionId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the promotion to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          deletedPromotion:
+                            $ref: "#/components/schemas/PromotionModel"
+        "400":
+          description: Invalid Promotion ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Promotion Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+  /notifications:
+    get:
+      tags:
+        - Notifications
+      operationId: get-all-notifications-by-authentication
+      summary: Get all notifications by authentication
+      description: Get all notifications by authentication
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          notifications:
+                            type: array
+                            items:
+                              allOf:
+                                - $ref: "#/components/schemas/NotificationModel"
+    post:
+      tags:
+        - Notifications
+      operationId: post-create-notification-for-all-users
+      summary: Create notification for all users
+      description: Create notification with the provided information.
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: "#/components/requestBodies/CreateNotification"
+      responses:
+        "201":
+          description: Create notification was successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          newNotification:
+                            type: array
+                            items:
+                              allOf:
+                                - $ref: "#/components/schemas/PromotionModel"
+                                - type: object
+                                  properties:
+                                    user:
+                                      type: object
+                                      properties:
+                                        userProfile:
+                                          type: object
+                                          properties:
+                                            fullName:
+                                              type: string
+                                              example: "Budi Cahyono"
+        "400":
+          description: Bad Request Some Field Missing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "All fields must be filled"
+  /notifications/markAsRead:
+    put:
+      tags:
+        - Notifications
+      operationId: put-notifications-by-authentication
+      summary: Put notifications by authentication
+      description: Put notifications by authentication
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          notifications:
+                            type: object
+                            properties:
+                              count:
+                                type: integer
+                                example: 10
+  /trackings/{lessonId}:
+    put:
+      tags:
+        - Trackings
+      operationId: put-tracking-by-lesson-id
+      summary: Put tracking by lesson id
+      description: Edit tracking by lesson id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: lessonId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the lesson to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          tracking:
+                            allOf:
+                              - $ref: "#/components/schemas/TrackingModel"
+  /payments:
+    get:
+      tags:
+        - Payments
+      operationId: get-all-payments
+      summary: get all payments
+      description: get all payments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: search for get payments
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          payments:
+                            type: array
+                            items:
+                              allOf:
+                                - type: object
+                                  properties:
+                                    id:
+                                      type: integer
+                                      example: 1
+                                    status:
+                                      type: string
+                                      example: "paid"
+                                    createdAt:
+                                      type: string
+                                      example: "19 Desember 2023"
+                                    methodPayment:
+                                      type: string
+                                      example: "Credit Card"
+                                    course:
+                                      type: object
+                                      properties:
+                                        courseName:
+                                          type: string
+                                          example: "Intro to Basic of User Interaction Design"
+                                        category:
+                                          type: object
+                                          properties:
+                                            categoryName:
+                                              type: string
+                                              example: "UI/UX Design"
+  /payments/history:
+    get:
+      tags:
+        - Payments
+      operationId: get-payments-by-authentication
+      summary: get payments by authentication
+      description: get payments by authentication
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          payments:
+                            type: array
+                            items:
+                              allOf:
+                                - $ref: "#/components/schemas/PaymentModel"
+                                - type: object
+                                  properties:
+                                    course:
+                                      allOf:
+                                        - $ref: "#/components/schemas/PaymentModel"
+                                        - type: object
+                                          properties:
+                                            category:
+                                              type: object
+                                              properties:
+                                                categoryName:
+                                                  type: string
+                                                  example: "UI/UX Design"
+                                            modul:
+                                              type: integer
+                                              example: 10
+  /payments/{courseId}:
+    get:
+      tags:
+        - Payments
+      operationId: get-payment-by-course-id
+      summary: get payment by course id
+      description: get payment by course id
+      parameters:
+        - in: path
+          name: courseId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the payment to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          course:
+                            allOf:
+                              - $ref: "#/components/schemas/CourseModel"
+                              - type: object
+                                properties:
+                                  category:
+                                    type: object
+                                    properties:
+                                      categoryName:
+                                        type: string
+                                        example: "UI/UX Design"
+                          PPN:
+                            type: integer
+                            example: 27500
+                          amount:
+                            type: integer
+                            example: 277500
+        "404":
+          description: Course Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+    post:
+      tags:
+        - Payments
+      operationId: post-create-payment
+      summary: post create payment
+      description: post create payment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: courseId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the course to retrieve.
+      requestBody:
+        $ref: "#/components/requestBodies/CreatePayment"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          newPayment:
+                            $ref: "#/components/schemas/PaymentModel"
+        "400":
+          description: Invalid Promotion ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Promotion Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+  /payments/midtrans/{courseId}:
+    post:
+      tags:
+        - Payments
+      operationId: post-create-payment-midtrans
+      summary: post create payment midtrans
+      description: post create payment midtrans
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: courseId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the course to retrieve.
+      requestBody:
+        $ref: "#/components/requestBodies/CreatePaymentMidtrans"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          newPayment:
+                            $ref: "#/components/schemas/PaymentModel"
+                          transaction:
+                            type: object
+                            properties:
+                              status_code:
+                                type: string
+                                example: "201"
+                              status_message:
+                                type: string
+                                example: "Success, Credit Card transaction is successful"
+                              transaction_id:
+                                type: string
+                                example: "23c5a0ba-40aa-4501-a2cc-06120ad49eb0"
+                              order_id:
+                                type: string
+                                example: "UI/UX-Design-HPHL3Eis4y"
+                              merchant_id:
+                                type: string
+                                example: "G212325672"
+                              gross_amount:
+                                type: string
+                                example: "277501.00"
+                              currency:
+                                type: string
+                                example: "IDR"
+                              payment_type:
+                                type: string
+                                example: "credit_card"
+                              transaction_time:
+                                type: string
+                                example: "2023-12-19 18:38:02"
+                              transaction_status:
+                                type: string
+                                example: "pending"
+                              fraud_status:
+                                type: string
+                                example: "accept"
+                              expiry_time:
+                                type: string
+                                example: "2023-12-27 18:38:02"
+                              bank:
+                                type: string
+                                example: "cimb"
+                              redirect_url:
+                                type: string
+                                example: "https://api.sandbox.midtrans.com/v2/3ds/redirect/23c5a0ba-40aa-4501-a2cc-06120ad49eb0"
+                              masked_card:
+                                type: string
+                                example: "48111111-1114"
+                              card_type:
+                                type: string
+                                example: "credit"
+                              channel:
+                                type: string
+                                example: "dragon"
+                              three_ds_version:
+                                type: string
+                                example: "2"
+                              on_us:
+                                type: boolean
+                                example: false
+        "400":
+          description: Course Free Not Able to Buy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Course Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+  /admin/all:
+    get:
+      tags:
+        - Admin
+      operationId: admin-detail-page
+      summary: admin detail page
+      description: detail page admin
+      security:
+        - bearerAuth: []
+      responses:
+        "201":
+          description: User registration was successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          countUser:
+                            type: integer
+                            example: 2
+                          allCourse:
+                            type: integer
+                            example: 4
+                          coursePremium:
+                            type: integer
+                            example: 1
+components:
+  schemas:
+    BasicResponse:
+      title: BasicResponse
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "success"
+    Pagination:
+      title: Pagination
+      type: object
+      properties:
+        links:
+          type: object
+          properties:
+            next:
+              type: string
+              example: "https://domain.com/users?page=3&limit=10"
+            prev:
+              type: string
+              example: "https://domain.com/users?page=1&limit=10"
+        total_items:
+          type: integer
+          example: 10
+    UserModel:
+      title: User
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          example: "budi@mail.com"
+        password:
+          type: string
+          example: "$2b$10$wpqr1W8aUNCN7BZZ3o6sz.meX9rB/aItp5Mw/0q7GaRmJbsU2GGbK"
+        otp:
+          type: string
+          example: "012345"
+        otpCreatedAt:
+          type: string
+          example: "2023-12-04T03:09:21.254Z"
+        isVerified:
+          type: boolean
+          example: false
+        role:
+          type: string
+          example: "user"
+        resetPasswordToken:
+          type: string
+          example: "$2b$10$wpqr1W8aUNCN7BZZ3o6sz.meX9rB/aItp5Mw/0q7GaRmJbsU2GGbK"
+        googleId:
+          type: string
+          example: null
+    UserProfileModel:
+      title: User Profile
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        profilePicture:
+          type: string
+          example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
+        fullName:
+          type: string
+          example: "Budi Cahyono"
+        phoneNumber:
+          type: string
+          example: "08123456789"
+        city:
+          type: string
+          example: "Vancouver"
+        country:
+          type: string
+          example: "Canada"
+        userId:
+          type: integer
+          example: 1
+    NotificationModel:
+      title: Notification
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Notification"
+        message:
+          type: string
+          example: "Password successfully updated!"
+        isRead:
+          type: boolean
+          example: false
+        createdAt:
+          type: string
+          example: "19 Desember 2023"
+        userId:
+          type: integer
+          example: 1
+    CategoryModel:
+      title: Category
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        categoryName:
+          type: string
+          example: "UI/UX Design"
+        categoryImg:
+          type: string
+          example: "https://images.unsplash.com/photo-1600087626120-062700394a01?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    CourseModel:
+      title: Course
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        courseName:
+          type: string
+          example: "Intro to Basic of User Interaction Design"
+        price:
+          type: integer
+          example: 250000
+        averageRating:
+          type: number
+          format: float
+          example: 5
+        level:
+          type: string
+          example: "Begginer Level"
+        aboutCourse:
+          type: string
+          example: "Design system adalah kumpulan komponen design, code, ataupun dokumentasi yang dapat digunakan sebagai panduan utama yang memunginkan designer serta developer memiliki lebih banyak kontrol atas berbagai platform."
+        targetAudience:
+          type: string
+          example: "Anda yang ingin memahami poin penting design system"
+        learningMaterial:
+          type: string
+          example: "Mempunyai akun Figma atau Install Adobe XD Menggunakan internet minimal kecepatan 2Mbps Belajar di tempat yang nyaman"
+        mentor:
+          type: string
+          example: "Simon Doe"
+        isPremium:
+          type: boolean
+          example: true
+        videoURL:
+          type: string
+          example: "https://youtu.be/ixOd42SEUF0"
+        forumURL:
+          type: string
+          example: "https://web.telegram.org"
+        duration:
+          type: string
+          example: "120 Minute"
+        courseImg:
+          type: string
+          example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
+        createdAt:
+          type: string
+          example: "19 Desember 2023"
+        categoryId:
+          type: integer
+          example: 1
+        promotionId:
+          type: integer
+          example: 1
+    ChapterModel:
+      title: Chapter
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Intro to Basic of User Interaction Design"
+        createdAt:
+          type: string
+          example: "19 Desember 2023"
+        updatedAt:
+          type: string
+          example: "19 Desember 2023"
+        duration:
+          type: string
+          example: "0"
+        courseId:
+          type: integer
+          example: 1
+    DetailCourseModelEnroll:
+      title: Course
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        courseName:
+          type: string
+          example: "Intro to Basic of User Interaction Design"
+        price:
+          type: integer
+          example: 250000
+        averageRating:
+          type: number
+          format: float
+          example: 5
+        level:
+          type: string
+          example: "Begginer Level"
+        aboutCourse:
+          type: string
+          example: "Design system adalah kumpulan komponen design, code, ataupun dokumentasi yang dapat digunakan sebagai panduan utama yang memunginkan designer serta developer memiliki lebih banyak kontrol atas berbagai platform."
+        targetAudience:
+          type: string
+          example: "Anda yang ingin memahami poin penting design system"
+        learningMaterial:
+          type: string
+          example: "Mempunyai akun Figma atau Install Adobe XD Menggunakan internet minimal kecepatan 2Mbps Belajar di tempat yang nyaman"
+        mentor:
+          type: string
+          example: "Simon Doe"
+        isPremium:
+          type: boolean
+          example: true
+        videoURL:
+          type: string
+          example: "https://youtu.be/ixOd42SEUF0"
+        forumURL:
+          type: string
+          example: "https://web.telegram.org"
+        duration:
+          type: string
+          example: "120 Minute"
+        courseImg:
+          type: string
+          example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
+        createdAt:
+          type: string
+          example: "19 Desember 2023"
+        categoryId:
+          type: integer
+          example: 1
+        promotionId:
+          type: integer
+          example: 1
+        modul:
+          type: integer
+          example: 2
+        enrollment:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            progres:
+              type: string
+              example: "33.3"
+    CourseModelEnroll:
+      title: Course
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        courseName:
+          type: string
+          example: "Intro to Basic of User Interaction Design"
+        averageRating:
+          type: number
+          format: float
+          example: 5
+        level:
+          type: string
+        mentor:
+          type: string
+          example: "Simon Doe"
+        isPremium:
+          type: boolean
+          example: true
+        videoURL:
+          type: string
+          example: "https://youtu.be/ixOd42SEUF0"
+        forumURL:
+          type: string
+          example: "https://web.telegram.org"
+        duration:
+          type: string
+          example: "120 Minute"
+        courseImg:
+          type: string
+          example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
+        category:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            categoryName:
+              type: string
+              example: "Web Development"
+        enrollment:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            progres:
+              type: string
+              example: "33.3"
+        modul:
+          type: integer
+          example: 2
+        statusEnrol:
+          type : boolean
+          example: true
+    CourseModelNotEnroll:
+      title: Course
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        courseName:
+          type: string
+          example: "Intro to Basic Web"
+        averageRating:
+          type: number
+          format: float
+          example: 5
+        level:
+          type: string
+        mentor:
+          type: string
+          example: "Simon Doe"
+        isPremium:
+          type: boolean
+          example: true
+        videoURL:
+          type: string
+          example: "https://youtu.be/ixOd42SEUF0"
+        forumURL:
+          type: string
+          example: "https://web.telegram.org"
+        duration:
+          type: string
+          example: "120 Minute"
+        courseImg:
+          type: string
+          example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
+        category:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            categoryName:
+              type: string
+              example: "Web Development"
+        modul:
+          type: integer
+          example: 2
+        statusEnrol:
+          type : boolean
+          example: false  
+    LessonModel:
+      title: Lesson
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        lessonName:
+          type: string
+          example: "The Purpose of Taking Design System Classes"
+        videoURL:
+          type: string
+          example: "https://youtu.be/ixOd42SEUF0"
+        createdAt:
+          type: string
+          example: "19 Desember 2023"
+        updatedAt:
+          type: string
+          example: "19 Desember 2023"
+        chapterId:
+          type: integer
+          example: 1
+    EnrollmentModel:
+      title: Enrollment
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        createdAt:
+          type: string
+          example: "19 Desember 2023"
+        userId:
+          type: integer
+          example: 1
+        courseId:
+          type: integer
+          example: 1
+        progres:
+          type: number
+          format: float
+          example: 0
+    PromotionModel:
+      title: Promotion
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        discount:
+          type: number
+          format: float
+          example: 0.1
+        startDate:
+          type: string
+          example: "01 Desember 2023"
+        endDate:
+          type: string
+          example: "31 Desember 2023"
+    TrackingModel:
+      title: Tracking
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        status:
+          type: string
+          example: false
+        createdAt:
+          type: string
+          example: "19 Desember 2023"
+        updatedAt:
+          type: string
+          example: "19 Desember 2023"
+        userId:
+          type: integer
+          example: 1
+        lessonId:
+          type: integer
+          example: 1
+        courseId:
+          type: integer
+          example: 1
+    PaymentModel:
+      title: Payment
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        amount:
+          type: integer
+          example: 100000
+        status:
+          type: string
+          example: "Unpaid"
+        methodPayment:
+          type: string
+          example: "Credit Card"
+        paymentCode:
+          type: string
+          example: "UI/UX-Design-HPHL3Eis4y"
+        createdAt:
+          type: string
+          example: "19 Desember 2023"
+        updatedAt:
+          type: string
+          example: "19 Desember 2023"
+        userId:
+          type: integer
+          example: 1
+        courseId:
+          type: integer
+          example: 1
+    ReviewModel:
+      title: Review
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        userRating:
+          type: integer
+          example: 5
+        userComment:
+          type: string
+          example: "This course provides a comprehensive understanding. The instructor is clear and profound, and the combination of theory and practical case studies makes it highly applicable. Highly recommended"
+        createdAt:
+          type: string
+          example: "19 Desember 2023"
+        enrollmentId:
+          type: integer
+          example: 1
+  requestBodies:
+    Register:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              fullName:
+                type: string
+                example: "Budi Cahyono"
+              email:
+                type: string
+                example: "budi@mail.com"
+              phoneNumber:
+                type: string
+                example: "08123456789"
+              password:
+                type: string
+                example: "Budi123*"
+    Login:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              emailOrPhoneNumber:
+                type: string
+                example: "budi@mail.com"
+              password:
+                type: string
+                example: "Budi123*"
+    VerifyOtp:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                example: "budi@mail.com"
+              otp:
+                type: string
+                example: "012345"
+    ResendOtp:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                example: "budi@mail.com"
+    ForgetPassword:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                example: "budi@mail.com"
+    UpdatePassword:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              password:
+                type: string
+                example: "Budi123*"
+              passwordConfirmation:
+                type: string
+                example: "Budi123*"
+    ChangePassword:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              oldPassword:
+                type: string
+                example: "Budi123*"
+              newPassword:
+                type: string
+                example: "Test123*"
+              newPasswordConfirmation:
+                type: string
+                example: "Test123*"
+    UpdateProfile:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              image:
+                type: string
+                format: binary
+              fullName:
+                type: string
+                example: "Budi Cahyono"
+              phoneNumber:
+                type: string
+                example: "08123456789"
+              city:
+                type: string
+                example: "Vancouver"
+              country:
+                type: string
+                example: "Canada"
+    CreateCategory:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              categoryName:
+                type: string
+                example: "UI/UX Design"
+              categoryImg:
+                type: string
+                example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
+    EditCategory:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              categoryName:
+                type: string
+                example: "UI/UX Design"
+              categoryImg:
+                type: string
+                example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
+    CreateCourse:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              courseName:
+                type: string
+                example: "Intro to Basic of User Interaction Design"
+              price:
+                type: integer
+                example: 250000
+              level:
+                type: string
+                example: "Begginer Level"
+              aboutCourse:
+                type: string
+                example: "Design system adalah kumpulan komponen design, code, ataupun dokumentasi yang dapat digunakan sebagai panduan utama yang memunginkan designer serta developer memiliki lebih banyak kontrol atas berbagai platform."
+              targetAudience:
+                type: string
+                example: "Anda yang ingin memahami poin penting design system"
+              learningMaterial:
+                type: string
+                example: "Mempunyai akun Figma atau Install Adobe XD Menggunakan internet minimal kecepatan 2Mbps Belajar di tempat yang nyaman"
+              mentor:
+                type: string
+                example: "Simon Doe"
+              videoURL:
+                type: string
+                example: "https://youtu.be/ixOd42SEUF0"
+              forumURL:
+                type: string
+                example: "https://web.telegram.org"
+              duration:
+                type: string
+                example: "120 Minute"
+              courseImg:
+                type: string
+                example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
+              categoryId:
+                type: integer
+                example: 1
+              promotionId:
+                type: integer
+                example: null
+    EditCourse:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              courseName:
+                type: string
+                example: "Intro to Basic of User Interaction Design"
+              price:
+                type: integer
+                example: 250000
+              level:
+                type: string
+                example: "Begginer Level"
+              aboutCourse:
+                type: string
+                example: "Design system adalah kumpulan komponen design, code, ataupun dokumentasi yang dapat digunakan sebagai panduan utama yang memunginkan designer serta developer memiliki lebih banyak kontrol atas berbagai platform."
+              targetAudience:
+                type: string
+                example: "Anda yang ingin memahami poin penting design system"
+              learningMaterial:
+                type: string
+                example: "Mempunyai akun Figma atau Install Adobe XD Menggunakan internet minimal kecepatan 2Mbps Belajar di tempat yang nyaman"
+              mentor:
+                type: string
+                example: "Simon Doe"
+              videoURL:
+                type: string
+                example: "https://youtu.be/ixOd42SEUF0"
+              forumURL:
+                type: string
+                example: "https://web.telegram.org"
+              duration:
+                type: string
+                example: "120 Minute"
+              courseImg:
+                type: string
+                example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
+              categoryId:
+                type: integer
+                example: 1
+              promotionId:
+                type: integer
+                example: null
+    CreateChapter:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: "Chapter 1 - Pendahuluan"
+              courseId:
+                type: integer
+                example: 1
+              duration:
+                type: string
+                example: "90 Menit"
+    EditChapter:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: "Chapter 1 - Pendahuluan"
+              courseId:
+                type: integer
+                example: 1
+              duration:
+                type: string
+                example: "90 Menit"
+    CreateLesson:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              lessonName:
+                type: string
+                example: "The Purpose of Taking Design System Classes"
+              videoURL:
+                type: string
+                example: "https://youtu.be/ixOd42SEUF0"
+              chapterId:
+                type: integer
+                example: 1
+    EditLesson:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              lessonName:
+                type: string
+                example: "The Purpose of Taking Design System Classes"
+              videoURL:
+                type: string
+                example: "https://youtu.be/ixOd42SEUF0"
+              chapterId:
+                type: integer
+                example: 1
+    CreateReview:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              userRating:
+                type: integer
+                example: 5
+              userComment:
+                type: string
+                example: "This course provides a comprehensive understanding. The instructor is clear and profound, and the combination of theory and practical case studies makes it highly applicable. Highly recommended"
+    CreatePromotion:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              discount:
+                type: number
+                format: float
+                example: 0.1
+              startDate:
+                type: string
+                example: "2023-12-01"
+              endDate:
+                type: string
+                example: "2023-12-31"
+    EditPromotion:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              discount:
+                type: number
+                format: float
+                example: 0.1
+              startDate:
+                type: string
+                example: "2023-12-01"
+              endDate:
+                type: string
+                example: "2023-12-31"
+    CreateNotification:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "Notification"
+              message:
+                type: string
+                example: "Password successfully updated!"
+    CreatePayment:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              methodPayment:
+                type: string
+                example: "Credit Card"
+    CreatePaymentMidtrans:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              methodPayment:
+                type: string
+                example: "Credit Card"
+              cardNumber:
+                type: string
+                example: "4811111111111114"
+              cvv:
+                type: string
+                example: "123"
+              expiryDate:
+                type: string
+                example: "02/25"
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    google_oauth:
+      type: oauth2
+      description: Google OAuth
+      flows:
+        authorizationCode:
+          authorizationUrl: https://accounts.google.com/o/oauth2/v2/auth
+          tokenUrl: https://www.googleapis.com/oauth2/v4/token
+          scopes:
+            profile: View your basic profile info
+            email: View your email address
