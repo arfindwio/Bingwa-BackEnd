@@ -7,6 +7,8 @@ const prisma = new PrismaClient();
 const nodemailer = require("../utils/nodemailer");
 const { formattedDate } = require("../utils/formattedDate");
 const { generatedPaymentCode } = require("../utils/codeGenerator");
+const catchAsync = require("../utils/catchAsync");
+const { CustomError } = require("../utils/errorHandler");
 
 const { PAYMENT_DEV_CLIENT_KEY, PAYMENT_DEV_SERVER_KEY, PAYMENT_PROD_CLIENT_KEY, PAYMENT_PROD_SERVER_KEY } = process.env;
 
@@ -23,22 +25,16 @@ let core = new midtransClient.CoreApi({
 
 module.exports = {
   // Controller for creating a payment
-  createPayment: async (req, res, next) => {
+  createPayment: catchAsync(async (req, res, next) => {
     try {
       const { idCourse } = req.params;
       const { methodPayment, createdAt, updatedAt } = req.body;
       const PPN = 11 / 100;
 
-      // Validate that createdAt and updatedAt are not provided during payment creation
       if (createdAt !== undefined || updatedAt !== undefined) {
-        return res.status(400).json({
-          status: false,
-          message: "createdAt or updateAt cannot be provided during payment creation",
-          data: null,
-        });
+        throw new CustomError(400, "createdAt or updateAt cannot be provided during payment creation");
       }
 
-      // Find the course for which payment is being created
       const course = await prisma.course.findFirst({
         where: {
           id: Number(idCourse),
@@ -52,25 +48,14 @@ module.exports = {
         },
       });
 
-      // Handle case when the course is not found
       if (!course) {
-        return res.status(404).json({
-          status: false,
-          message: `Course Not Found With Id ${idCourse}`,
-          data: null,
-        });
+        throw new CustomError(404, `Course Not Found With Id ${idCourse}`);
       }
 
-      // Handle case when trying to buy a free course
       if (!course.isPremium) {
-        return res.status(400).json({
-          status: false,
-          message: `Course Free Not Able to Buy`,
-          data: null,
-        });
+        throw new CustomError(400, `Course Free Not Able to Buy`);
       }
 
-      // Check if the user is already enrolled in the course
       const statusEnrollUser = await prisma.enrollment.findFirst({
         where: {
           courseId: Number(idCourse),
@@ -78,22 +63,14 @@ module.exports = {
         },
       });
 
-      // Handle case when the user is already enrolled
       if (statusEnrollUser) {
-        return res.status(400).json({
-          status: false,
-          message: `User Already Enrolled in this Course`,
-          data: null,
-        });
+        throw new CustomError(400, `User Already Enrolled in this Course`);
       }
 
-      // Generate a modified name for the payment code
       const modifiedName = course.category.categoryName.replace(/\s+/g, "-");
 
-      // Calculate the payment amount with PPN
       let amount = course.price + course.price * PPN;
 
-      // check is discount
       if (course.promotionId) {
         let promotion = await prisma.promotion.findFirst({
           where: { id: course.promotionId },
@@ -101,16 +78,10 @@ module.exports = {
         amount = amount - (amount * promotion.discount) / 100;
       }
 
-      // Validate the methodPayment field
       if (!methodPayment || typeof methodPayment !== "string") {
-        return res.status(400).json({
-          status: false,
-          message: `Bad Request for method payment`,
-          data: null,
-        });
+        throw new CustomError(400, "Bad Request for method payment");
       }
 
-      // Create a new payment record in the database
       const newPayment = await prisma.payment.create({
         data: {
           amount: parseInt(amount),
@@ -124,13 +95,11 @@ module.exports = {
         },
       });
 
-      // Send a success email notification to the user
       const html = await nodemailer.getHtml("transaction-succes.ejs", {
         course: course.courseName,
       });
       await nodemailer.sendEmail(req.user.email, "Email Transaction", html);
 
-      // Update the enrollment data when payment is successful
       await prisma.enrollment.create({
         data: {
           userId: Number(req.user.id),
@@ -148,7 +117,6 @@ module.exports = {
         },
       });
 
-      // Create tracking records for each lesson in the course
       const lessons = await prisma.lesson.findMany({
         where: {
           chapter: {
@@ -187,10 +155,9 @@ module.exports = {
     } catch (err) {
       next(err);
     }
-  },
+  }),
 
-  // Controller for getting the detail of a payment
-  getDetailPayment: async (req, res, next) => {
+  getDetailPayment: catchAsync(async (req, res, next) => {
     try {
       const { idCourse } = req.params;
       const PPN = 11 / 100;
@@ -216,11 +183,7 @@ module.exports = {
 
       // Handle case when the course is not found
       if (!course) {
-        return res.status(404).json({
-          status: false,
-          message: `Course Not Found With Id ${idCourse}`,
-          data: null,
-        });
+        throw new CustomError(404, `Course Not Found With Id ${idCourse}`);
       }
 
       // Calculate the payment amount with PPN
@@ -228,7 +191,7 @@ module.exports = {
 
       res.status(200).json({
         status: true,
-        message: `Succes To Show Detail Payment`,
+        message: `Success To Show Detail Payment`,
         data: {
           course,
           PPN: PPN * course.price,
@@ -238,10 +201,9 @@ module.exports = {
     } catch (err) {
       next(err);
     }
-  },
+  }),
 
-  // Controller for getting all payments with search functionality
-  getAllPayments: async (req, res, next) => {
+  getAllPayments: catchAsync(async (req, res, next) => {
     try {
       const { search } = req.query;
 
@@ -287,6 +249,7 @@ module.exports = {
           paymentCode: true,
         },
       });
+
       res.status(200).json({
         status: true,
         message: "Get all payments successful",
@@ -295,10 +258,9 @@ module.exports = {
     } catch (err) {
       next(err);
     }
-  },
+  }),
 
-  // Controller for getting the payment history of the authenticated user
-  getPaymentHistory: async (req, res, next) => {
+  getPaymentHistory: catchAsync(async (req, res, next) => {
     try {
       // Find all payments for the authenticated user
       let payments = await prisma.payment.findMany({
@@ -345,21 +307,16 @@ module.exports = {
     } catch (err) {
       next(err);
     }
-  },
+  }),
 
-  // Controller for creating payment using Midtrans API
-  createPaymentMidtrans: async (req, res, next) => {
+  createPaymentMidtrans: catchAsync(async (req, res, next) => {
     try {
       const courseId = req.params.courseId;
       const { methodPayment, cardNumber, cvv, expiryDate, bankName, store, message, createdAt, updatedAt } = req.body;
 
       // Validate that createdAt and updatedAt are not provided during payment creation
       if (createdAt !== undefined || updatedAt !== undefined) {
-        return res.status(400).json({
-          status: false,
-          message: "createdAt or updateAt cannot be provided during payment creation",
-          data: null,
-        });
+        throw new CustomError(400, "createdAt or updateAt cannot be provided during payment creation");
       }
 
       // Extract month and year from expiryDate
@@ -395,20 +352,12 @@ module.exports = {
 
       // Handle case when the course is not found
       if (!course) {
-        return res.status(404).json({
-          status: false,
-          message: `Course Not Found With Id ${courseId}`,
-          data: null,
-        });
+        throw new CustomError(404, `Course Not Found With Id ${courseId}`);
       }
 
       // Handle case when trying to buy a free course
       if (course.isPremium === false) {
-        return res.status(400).json({
-          status: false,
-          message: `Course Free Not Able to Buy`,
-          data: null,
-        });
+        throw new CustomError(400, `Course Free Not Able to Buy`);
       }
 
       // Check if the user is already enrolled in the course
@@ -421,11 +370,7 @@ module.exports = {
 
       // Handle case when the user is already enrolled
       if (enrollmentUser) {
-        return res.status(400).json({
-          status: false,
-          message: `User Alrady Enroll this Course`,
-          data: null,
-        });
+        throw new CustomError(400, `User Already Enrolled in this Course`);
       }
 
       // Generate a modified name for the payment code
@@ -464,11 +409,7 @@ module.exports = {
       // Set payment type based on the methodPayment
       if (methodPayment === "Credit Card") {
         if (!cardNumber || !cvv || !expiryDate || bankName !== undefined || store !== undefined || message !== undefined) {
-          return res.status(400).json({
-            status: false,
-            message: "For Credit Card payments, please provide only card details (cardNumber, cvv, expiryDate). Other fields are not applicable.",
-            data: null,
-          });
+          throw new CustomError(400, "For Credit Card payments, please provide only card details (cardNumber, cvv, expiryDate). Other fields are not applicable.");
         }
 
         parameter.payment_type = "credit_card";
@@ -480,11 +421,7 @@ module.exports = {
 
       if (methodPayment === "Bank Transfer") {
         if (!bankName || cardNumber !== undefined || cvv !== undefined || expiryDate !== undefined || store !== undefined || message !== undefined) {
-          return res.status(400).json({
-            status: false,
-            message: "For this payment method, please provide only the required fields. Unnecessary fields are not applicable.",
-            data: null,
-          });
+          throw new CustomError(400, "For this payment method, please provide only the required fields. Unnecessary fields are not applicable.");
         }
 
         parameter.payment_type = "bank_transfer";
@@ -495,11 +432,7 @@ module.exports = {
 
       if (methodPayment === "Mandiri Bill") {
         if (bankName !== undefined || cardNumber !== undefined || cvv !== undefined || expiryDate !== undefined || store !== undefined || message !== undefined) {
-          return res.status(400).json({
-            status: false,
-            message: "For this payment method, please provide only the required card details (cardNumber, cvv, expiryDate). Other fields are not applicable.",
-            data: null,
-          });
+          throw new CustomError(400, "For this payment method, please provide only the required card details (cardNumber, cvv, expiryDate). Other fields are not applicable.");
         }
 
         parameter.payment_type = "echannel";
@@ -511,11 +444,7 @@ module.exports = {
 
       if (methodPayment === "Permata") {
         if (bankName !== undefined || cardNumber !== undefined || cvv !== undefined || expiryDate !== undefined || store !== undefined || message !== undefined) {
-          return res.status(400).json({
-            status: false,
-            message: "For this payment method, please provide only the required card details (cardNumber, cvv, expiryDate). Other fields are not applicable.",
-            data: null,
-          });
+          throw new CustomError(400, "For this payment method, please provide only the required card details (cardNumber, cvv, expiryDate). Other fields are not applicable.");
         }
 
         parameter.payment_type = "permata";
@@ -523,11 +452,7 @@ module.exports = {
 
       if (methodPayment === "Gopay") {
         if (bankName !== undefined || cardNumber !== undefined || cvv !== undefined || expiryDate !== undefined || store !== undefined || message !== undefined) {
-          return res.status(400).json({
-            status: false,
-            message: "For this payment method, please provide only the required card details (cardNumber, cvv, expiryDate). Other fields are not applicable.",
-            data: null,
-          });
+          throw new CustomError(400, "For this payment method, please provide only the required card details (cardNumber, cvv, expiryDate). Other fields are not applicable.");
         }
 
         parameter.payment_type = "gopay";
@@ -539,11 +464,7 @@ module.exports = {
 
       if (methodPayment === "Counter") {
         if (bankName !== undefined || cardNumber !== undefined || cvv !== undefined || expiryDate !== undefined || store !== undefined) {
-          return res.status(400).json({
-            status: false,
-            message: "Please provide only the required card details (cardNumber, cvv, expiryDate) for this payment method. Other fields are not applicable.",
-            data: null,
-          });
+          throw new CustomError(400, "Please provide only the required card details (cardNumber, cvv, expiryDate) for this payment method. Other fields are not applicable.");
         }
 
         parameter.payment_type = "cstore";
@@ -567,11 +488,7 @@ module.exports = {
 
       if (methodPayment === "Cardless Credit") {
         if (bankName !== undefined || cardNumber !== undefined || cvv !== undefined || expiryDate !== undefined || store !== undefined || message !== undefined) {
-          return res.status(400).json({
-            status: false,
-            message: "For this payment method, please provide only the required card details (cardNumber, cvv, expiryDate). Other fields are not applicable.",
-            data: null,
-          });
+          throw new CustomError(400, "For this payment method, please provide only the required card details (cardNumber, cvv, expiryDate). Other fields are not applicable.");
         }
 
         parameter.payment_type = "akulaku";
@@ -581,7 +498,7 @@ module.exports = {
       let transaction = await core.charge(parameter);
 
       // Send email notification to the user
-      const html = await nodemailer.getHtml("transaction-succes.ejs", {
+      const html = await nodemailer.getHtml("transaction-success.ejs", {
         course: course.courseName,
       });
       await nodemailer.sendEmail(req.user.email, "Email Transaction", html);
@@ -646,10 +563,10 @@ module.exports = {
     } catch (err) {
       next(err);
     }
-  },
+  }),
 
-  // Controller to handle Midtrans payment notifications
-  handlePaymentNotification: async (req, res) => {
+  /// Controller to handle Midtrans payment notifications
+  handlePaymentNotification: catchAsync(async (req, res, next) => {
     try {
       // Extract payment notification data from the request body
       let notification = {
@@ -687,5 +604,5 @@ module.exports = {
     } catch (err) {
       next(err);
     }
-  },
+  }),
 };

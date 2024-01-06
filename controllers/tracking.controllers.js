@@ -1,6 +1,8 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+const catchAsync = require("../utils/catchAsync");
+const { CustomError } = require("../utils/errorHandler");
 const { formattedDate } = require("../utils/formattedDate");
 
 // Variable to store the timeout for progress update reminders
@@ -8,28 +10,16 @@ let reminderTimeout;
 
 module.exports = {
   // Controller for updating lesson tracking and progress
-  updateTracking: async (req, res, next) => {
+  updateTracking: catchAsync(async (req, res, next) => {
     try {
       const lessonId = req.params.lessonId;
       const { createdAt, updatedAt } = req.body;
 
       // Validate the provided lessonId
-      if (isNaN(lessonId) || lessonId <= 0) {
-        return res.status(400).json({
-          status: false,
-          message: "Invalid lessonId parameter",
-          data: null,
-        });
-      }
+      if (isNaN(lessonId) || lessonId <= 0) throw new CustomError(400, "Invalid lessonId parameter");
 
       // Validate that createdAt or updatedAt is not provided during tracking update
-      if (createdAt !== undefined || updatedAt !== undefined) {
-        return res.status(400).json({
-          status: false,
-          message: "createdAt or updateAt cannot be provided during tracking update",
-          data: null,
-        });
-      }
+      if (createdAt !== undefined || updatedAt !== undefined) throw new CustomError(400, "createdAt or updatedAt cannot be provided during tracking update");
 
       // Find the lesson details
       const lesson = await prisma.lesson.findUnique({
@@ -37,13 +27,7 @@ module.exports = {
       });
 
       // Check if the lesson exists
-      if (!lesson) {
-        return res.status(404).json({
-          status: false,
-          message: "Lesson not found",
-          data: null,
-        });
-      }
+      if (!lesson) throw new CustomError(404, "Lesson not found");
 
       // Find the tracking record for the user and lesson
       const trackingId = await prisma.tracking.findFirst({
@@ -53,8 +37,12 @@ module.exports = {
         },
         select: {
           id: true,
+          courseId: true, // Added courseId to use later
         },
       });
+
+      // Check if the tracking record exists
+      if (!trackingId) throw new CustomError(404, "Tracking record not found");
 
       // Update the tracking status and timestamp
       const tracking = await prisma.tracking.update({
@@ -147,5 +135,5 @@ module.exports = {
     } catch (err) {
       next(err);
     }
-  },
+  }),
 };

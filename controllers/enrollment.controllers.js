@@ -1,21 +1,18 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+const catchAsync = require("../utils/catchAsync");
+const { CustomError } = require("../utils/errorHandler");
 const { formattedDate } = require("../utils/formattedDate");
 
 module.exports = {
-  // Controller for handling course enrollment
-  courseEnrollment: async (req, res, next) => {
+  courseEnrollment: catchAsync(async (req, res, next) => {
     try {
       const { courseId } = req.params;
 
       // Validate if courseId is a number
       if (isNaN(courseId)) {
-        return res.status(400).json({
-          status: false,
-          message: "Invalid courseId provided",
-          data: null,
-        });
+        throw new CustomError(400, "Invalid courseId provided");
       }
 
       // Check if the course exists
@@ -27,11 +24,7 @@ module.exports = {
 
       // Return an error if the course is not found
       if (!course) {
-        return res.status(404).json({
-          status: false,
-          message: `Course not found with id ${courseId}`,
-          data: null,
-        });
+        throw new CustomError(404, `Course not found with id ${courseId}`);
       }
 
       // Check if the user is already enrolled in the course
@@ -44,24 +37,16 @@ module.exports = {
 
       // Return an error if the user is already enrolled
       if (statusEnrollUser) {
-        return res.status(400).json({
-          status: false,
-          message: `User Alrady Enroll this Course`,
-          data: null,
-        });
+        throw new CustomError(400, "User already enrolled in this course");
       }
 
       // Return an error if the course is premium
       if (course.isPremium) {
-        return res.status(400).json({
-          status: false,
-          message: "This course is premium. You must pay before enrolling.",
-          data: null,
-        });
+        throw new CustomError(400, "This course is premium. You must pay before enrolling.");
       }
 
       // Create a new enrollment record for the user
-      let enrollCourse = await prisma.enrollment.create({
+      const enrollCourse = await prisma.enrollment.create({
         data: {
           userId: Number(req.user.id),
           courseId: Number(courseId),
@@ -130,16 +115,15 @@ module.exports = {
 
       res.status(201).json({
         status: true,
-        message: "Succes To Enroll Course",
+        message: "Success to enroll in the course",
         data: { enrollCourse },
       });
     } catch (err) {
       next(err);
     }
-  },
+  }),
 
-  // Controller for retrieving all enrollments of the current user
-  getAllEnrollment: async (req, res, next) => {
+  getAllEnrollment: catchAsync(async (req, res, next) => {
     try {
       // Retrieve all enrollments for the current user, including associated course details
       const enrollments = await prisma.enrollment.findMany({
@@ -186,20 +170,15 @@ module.exports = {
     } catch (err) {
       next(err);
     }
-  },
+  }),
 
-  // Controller for retrieving details of a specific enrollment
-  getDetailEnrollment: async (req, res, next) => {
+  getDetailEnrollment: catchAsync(async (req, res, next) => {
+    const enrollmentId = req.params.id;
+
     try {
-      const enrollmentId = req.params.id;
-
       // Validate if enrollmentId is a number
       if (isNaN(enrollmentId)) {
-        return res.status(400).json({
-          status: false,
-          message: "Invalid enrollmentId provided",
-          data: null,
-        });
+        throw new CustomError(400, "Invalid enrollmentId provided");
       }
 
       // Retrieve details of the specified enrollment, including associated course details
@@ -242,11 +221,7 @@ module.exports = {
 
       // Return an error if the enrollment is not found
       if (!enrollment) {
-        return res.status(404).json({
-          status: false,
-          message: "Enrollment not found",
-          data: null,
-        });
+        throw new CustomError(404, "Enrollment not found");
       }
 
       return res.status(200).json({
@@ -257,5 +232,5 @@ module.exports = {
     } catch (err) {
       next(err);
     }
-  },
+  }),
 };
