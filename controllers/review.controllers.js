@@ -1,32 +1,22 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+const catchAsync = require("../utils/catchAsync");
+const { CustomError } = require("../utils/errorHandler");
 const { formattedDate } = require("../utils/formattedDate");
 
 module.exports = {
   // Controller for creating a new review for a course
-  createReview: async (req, res, next) => {
+  createReview: catchAsync(async (req, res, next) => {
     try {
       const { courseId } = req.params;
       const { userRating, userComment } = req.body;
 
       // Validate the provided courseId
-      if (isNaN(courseId) || courseId <= 0) {
-        return res.status(400).json({
-          status: false,
-          message: "Invalid courseId provided",
-          data: null,
-        });
-      }
+      if (isNaN(courseId) || courseId <= 0) throw new CustomError(400, "Invalid courseId provided");
 
       // Validate the provided userRating
-      if (!Number.isInteger(userRating) || userRating < 1 || userRating > 5) {
-        return res.status(400).json({
-          status: false,
-          message: "Invalid userRating provided. It must be an integer between 1 and 5.",
-          data: null,
-        });
-      }
+      if (!Number.isInteger(userRating) || userRating < 1 || userRating > 5) throw new CustomError(400, "Invalid userRating provided. It must be an integer between 1 and 5.");
 
       // Find the enrollment details for the user and course
       let enrollment = await prisma.enrollment.findFirst({
@@ -35,26 +25,14 @@ module.exports = {
       });
 
       // Check if the user is enrolled in the course
-      if (!enrollment) {
-        return res.status(404).json({
-          status: false,
-          message: "Please enroll in this course to review it",
-          data: null,
-        });
-      }
+      if (!enrollment) throw new CustomError(404, "Please enroll in this course to review it");
 
       // Check if the user has already submitted a review for this course
       const existingReview = await prisma.review.findFirst({
         where: { enrollmentId: enrollment.id },
       });
 
-      if (existingReview) {
-        return res.status(400).json({
-          status: false,
-          message: "You have already submitted a review for this course",
-          data: null,
-        });
-      }
+      if (existingReview) throw new CustomError(400, "You have already submitted a review for this course");
 
       // Create a new review record in the database
       let newReview = await prisma.review.create({
@@ -84,5 +62,5 @@ module.exports = {
     } catch (err) {
       next(err);
     }
-  },
+  }),
 };

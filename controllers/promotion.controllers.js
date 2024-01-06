@@ -1,20 +1,17 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+const catchAsync = require("../utils/catchAsync");
+const { CustomError } = require("../utils/errorHandler");
 const { formattedDate } = require("../utils/formattedDate");
 
 // Controller for creating a new promotion
-createPromotion = async (req, res, next) => {
+const createPromotion = catchAsync(async (req, res, next) => {
   try {
     const { discount, startDate, endDate } = req.body;
 
     // Validate that all required fields are provided
-    if (!discount || !startDate || !endDate) {
-      return res.status(400).json({
-        status: false,
-        message: "All fields must be filled",
-      });
-    }
+    if (!discount || !startDate || !endDate) throw new CustomError(400, "All fields must be filled");
 
     // Format start and end dates
     let formattedStartDate = formattedDate(startDate);
@@ -61,10 +58,10 @@ createPromotion = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-};
+});
 
 // Controller for getting all promotions with optional search query
-getAllPromotions = async (req, res, next) => {
+const getAllPromotions = catchAsync(async (req, res, next) => {
   try {
     const { search } = req.query;
 
@@ -85,21 +82,15 @@ getAllPromotions = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-};
+});
 
 // Controller for getting details of a promotion by ID
-getPromotionById = async (req, res, next) => {
+const getPromotionById = catchAsync(async (req, res, next) => {
   try {
     const promotionId = req.params.id;
 
     // Validate the promotion ID
-    if (!promotionId || isNaN(promotionId)) {
-      return res.status(400).json({
-        status: false,
-        message: "Invalid promotion ID",
-        data: null,
-      });
-    }
+    if (!promotionId || isNaN(promotionId)) throw new CustomError(400, "Invalid promotion ID");
 
     // Retrieve the promotion details from the database
     const promotion = await prisma.promotion.findUnique({
@@ -108,11 +99,7 @@ getPromotionById = async (req, res, next) => {
 
     // Handle case when promotion is not found
     if (!promotion) {
-      return res.status(404).json({
-        status: false,
-        message: "Promotion not found",
-        data: null,
-      });
+      throw new CustomError(404, "Promotion not found");
     }
 
     res.status(200).json({
@@ -123,22 +110,16 @@ getPromotionById = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-};
+});
 
 // Controller for editing a promotion by ID
-editPromotionById = async (req, res, next) => {
+const editPromotionById = catchAsync(async (req, res, next) => {
   try {
     const promotionId = req.params.id;
     const { discount, startDate, endDate } = req.body;
 
     // Validate the promotion ID
-    if (!promotionId || isNaN(promotionId)) {
-      return res.status(400).json({
-        status: false,
-        message: "Invalid promotion ID",
-        data: null,
-      });
-    }
+    if (!promotionId || isNaN(promotionId)) throw new CustomError(400, "Invalid promotion ID");
 
     // Retrieve the existing promotion details from the database
     const promotion = await prisma.promotion.findUnique({
@@ -146,21 +127,10 @@ editPromotionById = async (req, res, next) => {
     });
 
     // Handle case when promotion is not found
-    if (!promotion) {
-      return res.status(404).json({
-        status: false,
-        message: "Promotion not found",
-        data: null,
-      });
-    }
+    if (!promotion) throw new CustomError(404, "Promotion not found");
 
     // Validate that all required fields are provided
-    if (!discount || !startDate || !endDate) {
-      return res.status(400).json({
-        status: false,
-        message: "All fields must be filled",
-      });
-    }
+    if (!discount || !startDate || !endDate) throw new CustomError(400, "All fields must be filled");
 
     // Update the promotion details in the database
     const updatedPromotion = await prisma.promotion.update({
@@ -176,21 +146,15 @@ editPromotionById = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-};
+});
 
 // Controller for deleting a promotion by ID
-deletePromotionById = async (req, res, next) => {
+const deletePromotionById = catchAsync(async (req, res, next) => {
   try {
     const promotionId = req.params.id;
 
     // Validate the promotion ID
-    if (!promotionId || isNaN(promotionId)) {
-      return res.status(400).json({
-        status: false,
-        message: "Invalid promotion ID",
-        data: null,
-      });
-    }
+    if (!promotionId || isNaN(promotionId)) throw new CustomError(400, "Invalid promotion ID");
 
     // Retrieve the existing promotion details from the database
     const promotion = await prisma.promotion.findUnique({
@@ -198,13 +162,7 @@ deletePromotionById = async (req, res, next) => {
     });
 
     // Handle case when promotion is not found
-    if (!promotion) {
-      return res.status(404).json({
-        status: false,
-        message: "Promotion not found",
-        data: null,
-      });
-    }
+    if (!promotion) throw new CustomError(404, "Promotion not found");
 
     // Delete the promotion record from the database
     const deletedPromotion = await prisma.promotion.delete({
@@ -219,6 +177,12 @@ deletePromotionById = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-};
+});
 
-module.exports = { createPromotion, getAllPromotions, getPromotionById, editPromotionById, deletePromotionById };
+module.exports = {
+  createPromotion,
+  getAllPromotions,
+  getPromotionById,
+  editPromotionById,
+  deletePromotionById,
+};
