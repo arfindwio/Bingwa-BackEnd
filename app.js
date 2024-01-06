@@ -6,11 +6,7 @@ const cors = require("cors");
 const { PORT = 3000 } = process.env;
 
 const router = require("./routes");
-
-// const corsOptions = {
-//   origin: ["http://localhost:3000", "http://localhost:8000", "https://bingwa-b11.vercel.app"],
-//   optionsSuccessStatus: 200,
-// };
+const { CustomError } = require("./utils/errorHandler");
 
 app.use(cors());
 app.use(morgan("dev"));
@@ -22,20 +18,12 @@ app.use(router);
 
 // 404 error handling
 app.use((req, res, next) => {
-  res.status(404).json({
-    status: false,
-    message: "Bad Request",
-    data: null,
-  });
+  next(new CustomError(404, "Not Found"));
 });
 
-// 500 error handling
-app.use((err, req, res, next) => {
-  res.status(500).json({
-    status: false,
-    message: err.message ?? "Internal Server Error",
-    data: null,
-  });
+// 500 Internal Server Error
+app.use((req, res, next) => {
+  next(new CustomError(500, "Internal Server Error"));
 });
 
 app.listen(PORT, () => console.log(`server running at http://localhost:${PORT}`));

@@ -1,11 +1,12 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+const catchAsync = require("../utils/catchAsync");
+const { CustomError } = require("../utils/errorHandler");
 const { formattedDate } = require("../utils/formattedDate");
 
 module.exports = {
-  // Controller for retrieving all notifications for the authenticated user
-  getAllNotifications: async (req, res, next) => {
+  getAllNotifications: catchAsync(async (req, res, next) => {
     try {
       // Retrieve all notifications for the authenticated user
       const notifications = await prisma.notification.findMany({
@@ -20,28 +21,20 @@ module.exports = {
     } catch (err) {
       next(err);
     }
-  },
+  }),
 
-  // Controller for creating notifications for all users
-  createNotification: async (req, res, next) => {
+  createNotification: catchAsync(async (req, res, next) => {
     try {
       const { title, message, createdAt } = req.body;
 
       // Validate the presence of required fields
       if (!title || !message) {
-        return res.status(400).json({
-          status: false,
-          message: "Title and message are required fields",
-        });
+        throw new CustomError(400, "Title and message are required fields");
       }
 
       // Validate the absence of createdAt during notification creation
       if (createdAt !== undefined) {
-        return res.status(400).json({
-          status: false,
-          message: "createdAt  cannot be provided during notification creation",
-          data: null,
-        });
+        throw new CustomError(400, "createdAt cannot be provided during notification creation");
       }
 
       // Retrieve all users from the database
@@ -80,10 +73,9 @@ module.exports = {
     } catch (err) {
       next(err);
     }
-  },
+  }),
 
-  // Controller for marking all notifications as read for the authenticated user
-  markNotificationsAsRead: async (req, res, next) => {
+  markNotificationsAsRead: catchAsync(async (req, res, next) => {
     try {
       // Mark all notifications as read for the authenticated users
       const notifications = await prisma.notification.updateMany({
@@ -101,5 +93,5 @@ module.exports = {
     } catch (err) {
       next(err);
     }
-  },
+  }),
 };

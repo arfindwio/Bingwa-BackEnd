@@ -1,17 +1,17 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+const catchAsync = require("../utils/catchAsync");
+const { CustomError } = require("../utils/errorHandler");
 const { formattedDate } = require("../utils/formattedDate");
 
-// Helper function to find a chapter by its ID
-const findChapterById = async (chapterId) => {
+const findChapterById = catchAsync(async (chapterId) => {
   return await prisma.chapter.findUnique({
     where: { id: Number(chapterId) },
   });
-};
+});
 
-// Helper function to find a lesson by its ID, including associated chapter details
-const findLessonById = async (lessonId) => {
+const findLessonById = catchAsync(async (lessonId) => {
   return await prisma.lesson.findUnique({
     where: { id: Number(lessonId) },
     include: {
@@ -22,30 +22,20 @@ const findLessonById = async (lessonId) => {
       },
     },
   });
-};
+});
 
-// Controller for creating a new lesson
-const createLesson = async (req, res, next) => {
+const createLesson = catchAsync(async (req, res, next) => {
+  const { lessonName, videoURL, chapterId, createdAt, updatedAt } = req.body;
+
   try {
-    const { lessonName, videoURL, chapterId, createdAt, updatedAt } = req.body;
-
     // Validate the presence of required fields
     if (!lessonName || !videoURL || !chapterId) {
-      return res.status(400).json({
-        status: false,
-        message: "Please provide lessonName, videoURL, and chapterId",
-        data: null,
-      });
+      throw new CustomError(400, "Please provide lessonName, videoURL, and chapterId");
     }
 
     // Validate the absence of createdAt or updatedAt during lesson creation
     if (createdAt !== undefined || updatedAt !== undefined) {
-      return res.status(400).json({
-        status: false,
-        message:
-          "createdAt or updateAt cannot be provided during lesson creation",
-        data: null,
-      });
+      throw new CustomError(400, "createdAt or updateAt cannot be provided during lesson creation");
     }
 
     // Check if the specified chapter exists
@@ -53,11 +43,7 @@ const createLesson = async (req, res, next) => {
 
     // Return an error if the chapter is not found
     if (!chapter) {
-      return res.status(404).json({
-        status: false,
-        message: "Chapter not found",
-        data: null,
-      });
+      throw new CustomError(404, "Chapter not found");
     }
 
     // Retrieve all users and enrollments associated with the chapter's course
@@ -104,7 +90,7 @@ const createLesson = async (req, res, next) => {
       })
     );
 
-    // update Proges when create lesson
+    // Update Progres when create lesson
     const findLesson = await prisma.tracking.findMany({
       where: {
         courseId: chapter.courseId,
@@ -120,22 +106,19 @@ const createLesson = async (req, res, next) => {
     });
     const updateProgres = await Promise.all(
       enrollments.map(async (enrollment) => {
-        let lessonLenght;
+        let lessonLength;
         let lessonTrue = 0;
         let newProgres;
         let lesson = findLesson.filter((val) => {
-          if (
-            val.courseId == enrollment.courseId &&
-            val.userId == enrollment.userId
-          ) {
+          if (val.courseId == enrollment.courseId && val.userId == enrollment.userId) {
             return true;
           }
         });
-        lessonLenght = lesson.length;
+        lessonLength = lesson.length;
         lessonTrue = lesson.filter((val) => {
           return val.status == true;
         }).length;
-        newProgres = (lessonTrue / lessonLenght) * 100;
+        newProgres = (lessonTrue / lessonLength) * 100;
         return prisma.enrollment.update({
           where: {
             id: enrollment.id,
@@ -146,7 +129,7 @@ const createLesson = async (req, res, next) => {
         });
       })
     );
-    // end update Proges when create lesson
+    // End Update Progres when create lesson
 
     res.status(201).json({
       status: true,
@@ -156,13 +139,12 @@ const createLesson = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-};
+});
 
-// Controller for retrieving all lessons, optionally filtered by search query
-const getAllLessons = async (req, res, next) => {
+const getAllLessons = catchAsync(async (req, res, next) => {
+  const { search } = req.query;
+
   try {
-    const { search } = req.query;
-
     // Retrieve all lessons based on the search criteria
     const lessons = await prisma.lesson.findMany({
       where: {
@@ -212,23 +194,18 @@ const getAllLessons = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-};
+});
 
-// Controller for retrieving details of a specific lesson
-const getDetailLesson = async (req, res, next) => {
+const getDetailLesson = catchAsync(async (req, res, next) => {
+  const lessonId = req.params.id;
+
   try {
-    const lessonId = req.params.id;
-
     // Retrieve details of the specified lesson, including associated chapter details
     const lesson = await findLessonById(lessonId);
 
     // Return an error if the lesson is not found
     if (!lesson) {
-      return res.status(404).json({
-        status: false,
-        message: "Lesson not found",
-        data: null,
-      });
+      throw new CustomError(404, "Lesson not found");
     }
 
     res.status(200).json({
@@ -239,31 +216,21 @@ const getDetailLesson = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-};
+});
 
-// Controller for updating details of a specific lesson
-const updateDetailLesson = async (req, res, next) => {
+const updateDetailLesson = catchAsync(async (req, res, next) => {
+  const lessonId = req.params.id;
+  const { lessonName, videoURL, chapterId, createdAt, updatedAt } = req.body;
+
   try {
-    const lessonId = req.params.id;
-    const { lessonName, videoURL, chapterId, createdAt, updatedAt } = req.body;
-
     // Validate the presence of required fields
     if (!lessonName || !videoURL || !chapterId) {
-      return res.status(400).json({
-        status: false,
-        message: "Please provide lessonName, videoURL, and chapterId",
-        data: null,
-      });
+      throw new CustomError(400, "Please provide lessonName, videoURL, and chapterId");
     }
 
     // Validate the absence of createdAt or updatedAt during lesson update
     if (createdAt !== undefined || updatedAt !== undefined) {
-      return res.status(400).json({
-        status: false,
-        message:
-          "createdAt or updateAt cannot be provided during lesson update",
-        data: null,
-      });
+      throw new CustomError(400, "createdAt or updateAt cannot be provided during lesson update");
     }
 
     // Retrieve details of the specified lesson
@@ -271,11 +238,7 @@ const updateDetailLesson = async (req, res, next) => {
 
     // Return an error if the lesson is not found
     if (!lesson) {
-      return res.status(404).json({
-        status: false,
-        message: "Lesson not found",
-        data: null,
-      });
+      throw new CustomError(404, "Lesson not found");
     }
 
     // Check if the specified chapter exists
@@ -283,11 +246,7 @@ const updateDetailLesson = async (req, res, next) => {
 
     // Return an error if the chapter is not found
     if (!chapter) {
-      return res.status(404).json({
-        status: false,
-        message: "Chapter not found",
-        data: null,
-      });
+      throw new CustomError(404, "Chapter not found");
     }
 
     // Update details of the specified lesson
@@ -309,23 +268,18 @@ const updateDetailLesson = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-};
+});
 
-// Controller for deleting a specific lesson by its ID
-const deleteLessonById = async (req, res, next) => {
+const deleteLessonById = catchAsync(async (req, res, next) => {
+  const lessonId = req.params.id;
+
   try {
-    const lessonId = req.params.id;
-
     // Retrieve details of the specified lesson
     const lesson = await findLessonById(lessonId);
 
     // Return an error if the lesson is not found
     if (!lesson) {
-      return res.status(404).json({
-        status: false,
-        message: "Lesson not found",
-        data: null,
-      });
+      throw new CustomError(404, "Lesson not found");
     }
 
     // Delete the specified lesson
@@ -341,13 +295,12 @@ const deleteLessonById = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-};
+});
 
-// Controller for filtering or searching lessons based on query parameters
-const filterLesson = async (req, res, next) => {
+const filterLesson = catchAsync(async (req, res, next) => {
+  const { chapter, lesson, course } = req.query;
+
   try {
-    const { chapter, lesson, course } = req.query;
-
     // Check if any of the filter parameters is provided
     if (chapter || lesson || course) {
       // Perform a search based on the provided filters
@@ -406,13 +359,12 @@ const filterLesson = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-};
+});
 
-// Controller for retrieving all lessons in a course based on the course ID
-async function showLessonByCourse(req, res, next) {
+const showLessonByCourse = catchAsync(async (req, res, next) => {
+  const { idCourse } = req.params;
+
   try {
-    const { idCourse } = req.params;
-
     // Find the course with the specified ID
     const findCourse = await prisma.course.findFirst({
       where: {
@@ -422,11 +374,7 @@ async function showLessonByCourse(req, res, next) {
 
     // Return an error if the course is not found
     if (!findCourse) {
-      return res.status(404).json({
-        status: false,
-        message: `Course Not Found With Id ${idCourse}`,
-        data: null,
-      });
+      throw new CustomError(404, `Course Not Found With Id ${idCourse}`);
     }
 
     // Retrieve all chapters and associated lessons for the specified course
@@ -445,13 +393,13 @@ async function showLessonByCourse(req, res, next) {
     });
     res.status(200).json({
       status: true,
-      message: "Show All Vidio in Course",
+      message: "Show All Video in Course",
       data: filterLesson,
     });
   } catch (err) {
     next(err);
   }
-}
+});
 
 module.exports = {
   createLesson,
