@@ -6,7 +6,7 @@ const cors = require("cors");
 const { PORT = 3000 } = process.env;
 
 const router = require("./routes");
-const { CustomError } = require("./utils/errorHandler");
+const { CustomError, errorHandler } = require("./utils/errorHandler");
 
 app.use(cors());
 app.use(morgan("dev"));
@@ -22,8 +22,6 @@ app.use((req, res, next) => {
 });
 
 // 500 Internal Server Error
-app.use((req, res, next) => {
-  next(new CustomError(500, "Internal Server Error"));
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => console.log(`server running at http://localhost:${PORT}`));

@@ -201,7 +201,7 @@ const getDetailLesson = catchAsync(async (req, res, next) => {
 
   try {
     // Retrieve details of the specified lesson, including associated chapter details
-    const lesson = await findLessonById(lessonId);
+    const lesson = findLessonById(lessonId);
 
     // Return an error if the lesson is not found
     if (!lesson) {
@@ -234,7 +234,7 @@ const updateDetailLesson = catchAsync(async (req, res, next) => {
     }
 
     // Retrieve details of the specified lesson
-    const lesson = await findLessonById(lessonId);
+    const lesson = findLessonById(lessonId);
 
     // Return an error if the lesson is not found
     if (!lesson) {
@@ -242,7 +242,7 @@ const updateDetailLesson = catchAsync(async (req, res, next) => {
     }
 
     // Check if the specified chapter exists
-    const chapter = await findChapterById(chapterId);
+    const chapter = findChapterById(chapterId);
 
     // Return an error if the chapter is not found
     if (!chapter) {
