@@ -537,6 +537,110 @@ paths:
                           token:
                             type: string
                             example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjk4Njk0MzI1fQ.mexfgD-aW24iYvoWYWQJWSv7AbJ5EqyIDrHS6iCk-d0"
+  /users:
+    get:
+      tags:
+        - Users
+      operationId: get-all-users
+      summary: Get all users
+      description: Get all users
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            allOf:
+                              - $ref: "#/components/schemas/UserModel"
+  /users/{userId}:
+    delete:
+      tags:
+        - Users
+      operationId: delete-user-by-id
+      summary: Delete user by id
+      description: Delete user by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the user to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          deletedUser:
+                            $ref: "#/components/schemas/UserModel"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Invalid userId"
+                  data:
+                    type: object
+                    example: null
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Admins are not allowed to be deleted"
+                  data:
+                    type: object
+                    example: null
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "User not found"
+                  data:
+                    type: object
+                    example: null
   /user-profiles/update-profile:
     put:
       tags:
@@ -620,7 +724,7 @@ paths:
                           newCategory:
                             $ref: "#/components/schemas/CategoryModel"
         "400":
-          description: Bad Request field missing 
+          description: Bad Request field missing
           content:
             application/json:
               schema:
@@ -632,7 +736,7 @@ paths:
                   message:
                     type: string
                     example: "Please provide categoryName, and categoryImg"
-                  data :
+                  data:
                     type: object
                     example: null
   /categories/{categoryId}:
@@ -669,7 +773,7 @@ paths:
                           editedCategory:
                             $ref: "#/components/schemas/CategoryModel"
         "400":
-          description: Bad Request field missing 
+          description: Bad Request field missing
           content:
             application/json:
               schema:
@@ -681,7 +785,7 @@ paths:
                   message:
                     type: string
                     example: "Please provide categoryName, and categoryImg"
-                  data :
+                  data:
                     type: object
                     example: null
     delete:
@@ -727,7 +831,7 @@ paths:
                   message:
                     type: string
                     example: "Category Not Found"
-                  data :
+                  data:
                     type: object
                     example: null
   /courses:
@@ -1263,7 +1367,7 @@ paths:
                   message:
                     type: string
                     example: "Please provide name, courseId, and duration"
-                               
+
   /chapters/{chapterId}:
     get:
       tags:
@@ -1531,7 +1635,7 @@ paths:
                   message:
                     type: string
                     example: "Chapter not found"
-                    
+
   /lessons/filter:
     get:
       tags:
@@ -3062,7 +3166,7 @@ components:
           type: integer
           example: 2
         statusEnrol:
-          type : boolean
+          type: boolean
           example: true
     CourseModelNotEnroll:
       title: Course
@@ -3111,8 +3215,8 @@ components:
           type: integer
           example: 2
         statusEnrol:
-          type : boolean
-          example: false  
+          type: boolean
+          example: false
     LessonModel:
       title: Lesson
       type: object
