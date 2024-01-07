@@ -62,20 +62,16 @@ module.exports = {
     const { price, isPremium, averageRating, createdAt, updatedAt } = req.body;
 
     // Check if the course to be updated exists
-    const checkCourse = await prisma.course.findFirst({
+    const course = await prisma.course.findUnique({
       where: {
         id: Number(idCourse),
       },
     });
 
-    if (!checkCourse) {
-      throw new CustomError(404, `Course Not Found With Id ${idCourse}`);
-    }
+    if (!course) throw new CustomError(404, `Course Not Found`);
 
     // Input validation
-    if (isPremium !== undefined || averageRating !== undefined || createdAt !== undefined || updatedAt !== undefined) {
-      throw new CustomError(400, "isPremium, averageRating, createdAt, or updateAt cannot be provided during course update");
-    }
+    if (isPremium !== undefined || averageRating !== undefined || createdAt !== undefined || updatedAt !== undefined) throw new CustomError(400, "isPremium, averageRating, createdAt, or updateAt cannot be provided during course update");
 
     // Calculate isPremium based on price
     const updatedIsPremium = price > 0 ? true : false;
@@ -102,10 +98,19 @@ module.exports = {
   deleteCourse: catchAsync(async (req, res, next) => {
     const { idCourse } = req.params;
 
+    // Check if the course to be updated exists
+    const course = await prisma.course.findUnique({
+      where: {
+        id: Number(idCourse),
+      },
+    });
+
+    if (!course) throw new CustomError(404, `Course Not Found`);
+
     // Delete the course using Prisma
     let deletedCourse = await prisma.course.delete({
       where: {
-        id: Number(idCourse),
+        id: Number(course.id),
       },
     });
 
@@ -118,17 +123,6 @@ module.exports = {
 
   detailCourse: catchAsync(async (req, res, next) => {
     const { idCourse } = req.params;
-
-    // Check if the course exists
-    const checkCourse = await prisma.course.findFirst({
-      where: {
-        id: Number(idCourse),
-      },
-    });
-
-    if (!checkCourse) {
-      throw new CustomError(404, `Course Not Found With Id ${idCourse}`);
-    }
 
     // Retrieve detailed information about a course using Prisma
     const course = await prisma.course.findUnique({
@@ -181,278 +175,23 @@ module.exports = {
       },
     });
 
+    if (!course) throw new CustomError(404, `Course Not Found`);
+
     // Modify object property count to modul
     course["modul"] = course._count.chapter;
     delete course["_count"];
+
     res.status(200).json({
       status: true,
-      message: ` Detail Kelas with id:${idCourse} successful`,
+      message: `Get Detail Course successful`,
       data: { course },
     });
   }),
 
-  getMyCourse: catchAsync(async (req, res, next) => {
-    const { id } = req.user;
-    const { search, filter, category, level, page = 1, limit = 10 } = req.query;
-
-    // Count the number of courses the user is enrolled in
-    const countEnrollCourse = await prisma.course.count({
-      where: {
-        enrollment: {
-          some: {
-            userId: {
-              equals: Number(id),
-            },
-          },
-        },
-      },
-    });
-
-    // Calculate pagination
-    const pagination = getPagination(req, countEnrollCourse, Number(page), Number(limit));
-
-    // Query parameters for fetching enrolled courses
-    let coursesQuery = {
-      where: {},
-    };
-
-    // Search filter
-    if (search) {
-      coursesQuery.where.OR = [{ courseName: { contains: search, mode: "insensitive" } }, { mentor: { contains: search, mode: "insensitive" } }];
-    }
-
-    // Sorting filter
-    if (filter) {
-      coursesQuery.orderBy = [];
-      if (filter.includes("newest")) {
-        coursesQuery.orderBy.push({ createdAt: "desc" });
-      }
-      if (filter.includes("populer")) {
-        coursesQuery.orderBy.push({ averageRating: "desc" });
-      }
-      if (filter.includes("promo")) {
-        coursesQuery.where.promotionId = { not: null };
-      }
-      if (filter.includes("premium")) {
-        coursesQuery.where.isPremium = true;
-      }
-      if (filter.includes("free")) {
-        coursesQuery.where.isPremium = false;
-      }
-    }
-
-    // Category filter
-    if (category) {
-      const categories = Array.isArray(category) ? category.map((c) => c.toLowerCase()) : [category.toLowerCase()];
-      coursesQuery.where.category = {
-        categoryName: { in: categories, mode: "insensitive" },
-      };
-    }
-
-    // Level filter
-    if (level) {
-      const levels = Array.isArray(level) ? level : [level];
-      coursesQuery.where.level = { in: levels };
-    }
-
-    // Fetch courses not enrolled by the user
-    let courseNotEnrol = await prisma.course.findMany({
-      where: {
-        enrollment: {
-          none: {
-            userId: {
-              equals: Number(id),
-            },
-          },
-        },
-        ...coursesQuery.where,
-      },
-      select: {
-        id: true,
-        courseName: true,
-        mentor: true,
-        averageRating: true,
-        duration: true,
-        level: true,
-        courseImg: true,
-        price: true,
-        isPremium: true,
-        category: {
-          select: {
-            id: true,
-            categoryName: true,
-          },
-        },
-        _count: {
-          select: {
-            chapter: true,
-          },
-        },
-      },
-    });
-
-    // Fetch enrolled courses with additional information
-    let course = await prisma.course.findMany({
-      where: {
-        enrollment: {
-          some: {
-            userId: {
-              equals: Number(id),
-            },
-          },
-        },
-        ...coursesQuery.where,
-      },
-      select: {
-        id: true,
-        courseName: true,
-        mentor: true,
-        averageRating: true,
-        courseImg: true,
-        duration: true,
-        level: true,
-        price: true,
-        isPremium: true,
-        category: {
-          select: {
-            id: true,
-            categoryName: true,
-          },
-        },
-        enrollment: {
-          where: {
-            userId: Number(req.user.id),
-          },
-          select: {
-            id: true,
-            progres: true,
-          },
-        },
-        _count: {
-          select: {
-            chapter: true,
-          },
-        },
-      },
-    });
-
-    // Modify object property count to modul
-    course = course.map((val) => {
-      val.enrollment = val.enrollment[0];
-      val.modul = val._count.chapter;
-      val.statusEnrol = true;
-      delete val["_count"];
-      return val;
-    });
-
-    // Modify object property count to modul for not enrolled courses
-    courseNotEnrol = courseNotEnrol.map((val) => {
-      val.modul = val._count.chapter;
-      val.statusEnrol = false;
-      delete val["_count"];
-      return val;
-    });
-
-    res.json({
-      status: true,
-      message: "Success",
-      data: { course, courseNotEnrol },
-    });
-  }),
-
-  detailMyCourse: catchAsync(async (req, res, next) => {
-    const { idCourse } = req.params;
-
-    try {
-      // Check if the user is enrolled in the course
-      const findCourse = await prisma.enrollment.findFirst({
-        where: {
-          courseId: Number(idCourse),
-          userId: req.user.id,
-        },
-      });
-
-      if (!findCourse) {
-        throw new CustomError(400, "You are not enrolled in this course");
-      }
-
-      // Retrieve detailed information about the user's enrolled course
-      const course = await prisma.course.findFirst({
-        where: {
-          enrollment: {
-            some: {
-              userId: {
-                equals: Number(req.user.id),
-              },
-              courseId: {
-                equals: Number(idCourse),
-              },
-            },
-          },
-        },
-        include: {
-          category: {
-            select: {
-              id: true,
-              categoryName: true,
-            },
-          },
-          enrollment: {
-            where: {
-              userId: Number(req.user.id),
-              courseId: Number(idCourse),
-            },
-            select: {
-              id: true,
-              progres: true,
-            },
-          },
-          chapter: {
-            select: {
-              name: true,
-              duration: true,
-              lesson: {
-                include: {
-                  tracking: {
-                    where: {
-                      userId: Number(req.user.id),
-                      courseId: Number(idCourse),
-                    },
-                    select: {
-                      status: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-          _count: {
-            select: {
-              chapter: true,
-            },
-          },
-        },
-      });
-
-      // Modify object property count to modul and property enrollment
-      course.enrollment = course.enrollment[0];
-      course["modul"] = course._count.chapter;
-      delete course["_count"];
-
-      res.status(200).json({
-        status: true,
-        message: "Success to show detail Course",
-        data: course,
-      });
-    } catch (err) {
-      next(err);
-    }
-  }),
-
   getCourse: catchAsync(async (req, res, next) => {
-    const { search, filter, category, level, page = 1, limit = 10 } = req.query;
-
     try {
+      const { search, filter, category, level, page = 1, limit = 10 } = req.query;
+
       // Initialize an object to store query parameters for Prisma
       let coursesQuery = {
         where: {},
