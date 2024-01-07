@@ -22,7 +22,6 @@ model User {
   role               String         @default("user")
   resetPasswordToken String?
   googleId           String?
-  courses            Course[]       @relation("UserToCourse")
   tracking           Tracking[]
   userProfile        UserProfile?
   notification       Notification[]
@@ -66,14 +65,12 @@ model Course {
   chapter          Chapter[]
   enrollment       Enrollment[]
   payment          Payment[]
-  user             User[]       @relation("UserToCourse")
   createdAt        String
   updatedAt        String
   categoryId       Int
   category         Category     @relation(fields: [categoryId], references: [id])
   promotionId      Int?
   promotion        Promotion?   @relation(fields: [promotionId], references: [id])
-  Tracking         Tracking[]
 }
 
 model Chapter {
@@ -150,8 +147,6 @@ model Tracking {
   user      User?   @relation(fields: [userId], references: [id])
   lessonId  Int?
   lesson    Lesson? @relation(fields: [lessonId], references: [id])
-  courseId  Int?
-  course    Course? @relation(fields: [courseId], references: [id])
 }
 
 model Review {

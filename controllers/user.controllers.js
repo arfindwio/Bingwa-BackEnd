@@ -68,7 +68,7 @@ module.exports = {
         },
       });
 
-      let newUserProfile = await prisma.userProfile.create({
+      await prisma.userProfile.create({
         data: {
           fullName,
           phoneNumber,
@@ -83,7 +83,7 @@ module.exports = {
       res.status(201).json({
         status: true,
         message: "Registration successful",
-        data: { newUser, newUserProfile },
+        data: { newUser },
       });
     } catch (err) {
       next(err);
