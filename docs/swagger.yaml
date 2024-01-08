@@ -1150,8 +1150,8 @@ paths:
                                               type: string
                                               example: "Chapter 1 - Pendahuluan"
                                             duration:
-                                              type: string
-                                              example: "90 Menit"
+                                              type: integer
+                                              example: 90
                                             lesson:
                                               type: array
                                               items:
@@ -3006,8 +3006,8 @@ components:
           type: string
           example: "https://web.telegram.org"
         duration:
-          type: string
-          example: "120 Minute"
+          type: integer
+          example: 120
         courseImg:
           type: string
           example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
@@ -3037,8 +3037,8 @@ components:
           type: string
           example: "19 Desember 2023"
         duration:
-          type: string
-          example: "0"
+          type: integer
+          example: 0
         courseId:
           type: integer
           example: 1
@@ -3084,8 +3084,8 @@ components:
           type: string
           example: "https://web.telegram.org"
         duration:
-          type: string
-          example: "120 Minute"
+          type: integer
+          example: 120
         courseImg:
           type: string
           example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
@@ -3139,8 +3139,8 @@ components:
           type: string
           example: "https://web.telegram.org"
         duration:
-          type: string
-          example: "120 Minute"
+          type: integer
+          example: 120
         courseImg:
           type: string
           example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
@@ -3197,8 +3197,8 @@ components:
           type: string
           example: "https://web.telegram.org"
         duration:
-          type: string
-          example: "120 Minute"
+          type: integer
+          example: 120
         courseImg:
           type: string
           example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
@@ -3517,9 +3517,6 @@ components:
               forumURL:
                 type: string
                 example: "https://web.telegram.org"
-              duration:
-                type: string
-                example: "120 Minute"
               courseImg:
                 type: string
                 example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
@@ -3562,9 +3559,6 @@ components:
               forumURL:
                 type: string
                 example: "https://web.telegram.org"
-              duration:
-                type: string
-                example: "120 Minute"
               courseImg:
                 type: string
                 example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
@@ -3587,8 +3581,8 @@ components:
                 type: integer
                 example: 1
               duration:
-                type: string
-                example: "90 Menit"
+                type: integer
+                example: 90
     EditChapter:
       content:
         application/json:
@@ -3602,8 +3596,8 @@ components:
                 type: integer
                 example: 1
               duration:
-                type: string
-                example: "90 Menit"
+                type: integer
+                example: 90
     CreateLesson:
       content:
         application/json:

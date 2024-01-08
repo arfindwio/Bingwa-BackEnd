@@ -8,11 +8,10 @@ const { formattedDate } = require("../utils/formattedDate");
 
 module.exports = {
   createCourse: catchAsync(async (req, res, next) => {
-    const { price, isPremium, categoryId, promotionId, averageRating, createdAt, updatedAt } = req.body;
+    const { price, isPremium, categoryId, promotionId, averageRating, totalDuration, createdAt, updatedAt } = req.body;
 
-    if (isPremium !== undefined || averageRating !== undefined || createdAt !== undefined || updatedAt !== undefined) {
-      throw new CustomError(400, "isPremium, averageRating, createdAt, or updateAt cannot be provided during course creation");
-    }
+    if (isPremium !== undefined || averageRating !== undefined || createdAt !== undefined || updatedAt !== undefined || totalDuration !== undefined)
+      throw new CustomError(400, "isPremium, averageRating, totalDuration, createdAt, or updateAt cannot be provided during course creation");
 
     // Calculate isPremium based on price
     const updatedIsPremium = price > 0 ? true : false;
@@ -27,16 +26,13 @@ module.exports = {
       throw new CustomError(404, "Category not found");
     }
 
-    // Fetch promotion information if provided
-    if (promotionId) {
-      promotion = await prisma.promotion.findUnique({
+    // Handle if the promotion is not found
+    if (promotionId !== null) {
+      const promotion = await prisma.promotion.findUnique({
         where: { id: Number(promotionId) },
       });
 
-      // Handle if the promotion is not found
-      if (!promotion) {
-        throw new CustomError(404, "Promotion not found");
-      }
+      if (!promotion) throw new CustomError(404, "Promotion not found");
     }
 
     // Create a new course using Prisma
@@ -59,7 +55,7 @@ module.exports = {
   editCourse: catchAsync(async (req, res, next) => {
     const { idCourse } = req.params;
 
-    const { price, isPremium, averageRating, createdAt, updatedAt } = req.body;
+    const { price, isPremium, categoryId, promotionId, averageRating, totalDuration, createdAt, updatedAt } = req.body;
 
     // Check if the course to be updated exists
     const course = await prisma.course.findUnique({
@@ -71,10 +67,29 @@ module.exports = {
     if (!course) throw new CustomError(404, `Course Not Found`);
 
     // Input validation
-    if (isPremium !== undefined || averageRating !== undefined || createdAt !== undefined || updatedAt !== undefined) throw new CustomError(400, "isPremium, averageRating, createdAt, or updateAt cannot be provided during course update");
+    if (isPremium !== undefined || averageRating !== undefined || totalDuration !== undefined || createdAt !== undefined || updatedAt !== undefined)
+      throw new CustomError(400, "isPremium, averageRating, totalDuration, createdAt, or updateAt cannot be provided during course update");
 
     // Calculate isPremium based on price
     const updatedIsPremium = price > 0 ? true : false;
+
+    // Fetch category information
+    let category = await prisma.category.findUnique({
+      where: { id: Number(categoryId) },
+    });
+
+    // Handle if the category is not found
+    if (!category) {
+      throw new CustomError(404, "Category not found");
+    }
+
+    if (promotionId !== null) {
+      const promotion = await prisma.promotion.findUnique({
+        where: { id: Number(promotionId) },
+      });
+
+      if (!promotion) throw new CustomError(404, "Promotion not found");
+    }
 
     // Update the course using Prisma
     let editedCourse = await prisma.course.update({

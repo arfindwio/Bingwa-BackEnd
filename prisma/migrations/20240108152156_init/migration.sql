@@ -49,7 +49,7 @@ CREATE TABLE "Course" (
     "isPremium" BOOLEAN NOT NULL,
     "videoURL" TEXT NOT NULL,
     "forumURL" TEXT NOT NULL,
-    "duration" TEXT NOT NULL,
+    "totalDuration" INTEGER NOT NULL DEFAULT 0,
     "courseImg" TEXT,
     "createdAt" TEXT NOT NULL,
     "updatedAt" TEXT NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE "Chapter" (
     "name" TEXT NOT NULL,
     "createdAt" TEXT NOT NULL,
     "updatedAt" TEXT NOT NULL,
-    "duration" TEXT NOT NULL DEFAULT '0',
+    "duration" INTEGER NOT NULL,
     "courseId" INTEGER NOT NULL,
 
     CONSTRAINT "Chapter_pkey" PRIMARY KEY ("id")
