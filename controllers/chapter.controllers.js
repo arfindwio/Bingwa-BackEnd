@@ -26,6 +26,19 @@ const createChapter = catchAsync(async (req, res, next) => {
     },
   });
 
+  const chapters = await prisma.chapter.findMany({
+    where: { courseId: Number(courseId) },
+  });
+
+  const totalDuration = chapters.reduce((sum, chapter) => sum + chapter.duration, 0);
+
+  const updatedcourse = await prisma.course.update({
+    where: { id: Number(courseId) },
+    data: {
+      totalDuration: parseInt(totalDuration),
+    },
+  });
+
   res.status(201).json({
     status: true,
     message: "Create Chapter Success",
@@ -137,10 +150,24 @@ const updateChapter = catchAsync(async (req, res, next) => {
     },
   });
 
+  const chapters = await prisma.chapter.findMany({
+    where: { courseId: Number(updatedChapter.courseId) },
+  });
+
+  // Calculate the new average rating for the course
+  const totalDuration = chapters.reduce((sum, chapter) => sum + chapter.duration, 0);
+
+  const updatedcourse = await prisma.course.update({
+    where: { id: Number(updatedChapter.courseId) },
+    data: {
+      totalDuration: parseInt(totalDuration),
+    },
+  });
+
   res.status(200).json({
     status: true,
     message: "Chapter updated success",
-    data: { updatedChapter },
+    data: { updatedChapter, updatedcourse },
   });
 });
 

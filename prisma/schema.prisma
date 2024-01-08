@@ -60,13 +60,13 @@ model Course {
   isPremium        Boolean
   videoURL         String
   forumURL         String
-  duration         String
+  totalDuration    Int          @default(0)
   courseImg        String?
+  createdAt        String
+  updatedAt        String
   chapter          Chapter[]
   enrollment       Enrollment[]
   payment          Payment[]
-  createdAt        String
-  updatedAt        String
   categoryId       Int
   category         Category     @relation(fields: [categoryId], references: [id])
   promotionId      Int?
@@ -78,7 +78,7 @@ model Chapter {
   name      String
   createdAt String
   updatedAt String
-  duration  String   @default("0")
+  duration  Int
   courseId  Int
   course    Course   @relation(fields: [courseId], references: [id])
   lesson    Lesson[]
