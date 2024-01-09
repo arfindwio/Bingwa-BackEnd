@@ -360,8 +360,14 @@ module.exports = {
     // Generate a JWT token for the authenticated user
     let token = jwt.sign({ id: req.user.id }, JWT_SECRET_KEY);
 
+    const cookieOptions = {
+      secure: true,
+    };
+
+    res.cookie("authToken", token, cookieOptions).redirect(`http://localhost:3000`);
+
     // Redirect to a desired URL
-    res.redirect(`https://final-project-binar-seven.vercel.app?authToken=${token}`);
+    // res.redirect(`https://final-project-binar-seven.vercel.app?authToken=${token}`);
   },
 
   getAllUsers: catchAsync(async (req, res, next) => {

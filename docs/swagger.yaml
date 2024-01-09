@@ -5,6 +5,7 @@ info:
     MOOC (Massive Open Online Course) app is a versatile online learning platform that offers open and extensive access to a diverse range of courses. Users can choose from high-quality courses taught by expert instructors from top educational institutions worldwide. The app provides flexible, affordable, and accessible learning experiences, allowing users to study at their own pace and convenience.
   version: 1.0.0
 servers:
+  - url: http://localhost:8000/api/v1
   - url: http://localhost:3000/api/v1
   - url: https://bingwa-b11.vercel.app/api/v1
   - url: https://nodejsglove2040.stack-ap2.st4as.com/api/v1
