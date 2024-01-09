@@ -24,30 +24,36 @@ module.exports = {
       // Find the lesson details
       const lesson = await prisma.lesson.findUnique({
         where: { id: Number(lessonId) },
+        include: {
+          chapter: {
+            select: {
+              courseId: true,
+            },
+          },
+        },
       });
 
       // Check if the lesson exists
       if (!lesson) throw new CustomError(404, "Lesson not found");
 
       // Find the tracking record for the user and lesson
-      const trackingId = await prisma.tracking.findFirst({
+      const tracking = await prisma.tracking.findFirst({
         where: {
-          lessonId: Number(lessonId),
+          lessonId: Number(lesson.id),
           userId: Number(req.user.id),
         },
         select: {
           id: true,
-          courseId: true, // Added courseId to use later
         },
       });
 
       // Check if the tracking record exists
-      if (!trackingId) throw new CustomError(404, "Tracking record not found");
+      if (!tracking) throw new CustomError(404, "Tracking record not found");
 
       // Update the tracking status and timestamp
-      const tracking = await prisma.tracking.update({
+      const updatedTracking = await prisma.tracking.update({
         where: {
-          id: trackingId.id,
+          id: Number(tracking.id),
         },
         data: {
           status: true,
@@ -55,44 +61,35 @@ module.exports = {
         },
       });
 
-      // Update course progress for the user
-      let courseId = tracking.courseId;
-      let lessonLenght;
-      let lessonTrue = 0;
-      let newProgres;
-      const lessonUser = await prisma.tracking.findMany({
+      const allTracking = await prisma.tracking.findMany({
         where: {
           userId: Number(req.user.id),
-          courseId: Number(courseId),
+          lesson: {
+            chapter: {
+              courseId: Number(lesson.chapter.courseId),
+            },
+          },
         },
       });
 
-      lessonLenght = lessonUser.length;
-      lessonUser.forEach((val) => {
-        if (val.status == true) {
-          lessonTrue++;
-        }
-      });
-      newProgres = (100 / lessonLenght) * lessonTrue;
+      const falseCount = allTracking.filter((item) => item.status === false).length;
+      const trueCount = allTracking.filter((item) => item.status === true).length;
 
-      // Find enrollment ID
-      const enrolId = await prisma.enrollment.findFirst({
+      let updatedProgress = trueCount / allTracking.length;
+
+      const enrollment = await prisma.enrollment.findFirst({
         where: {
           userId: Number(req.user.id),
-          courseId: Number(courseId),
-        },
-        select: {
-          id: true,
+          courseId: Number(lesson.chapter.courseId),
         },
       });
 
-      // Update the progress in the enrollment record
-      const data = await prisma.enrollment.update({
+      await prisma.enrollment.update({
         where: {
-          id: enrolId.id,
+          id: Number(enrollment.id),
         },
         data: {
-          progres: newProgres.toFixed(1),
+          progres: updatedProgress,
         },
       });
 
@@ -101,36 +98,31 @@ module.exports = {
         clearTimeout(reminderTimeout);
       }
 
-      // Find all tracking records for the user with incomplete status
-      const allTracking = await prisma.tracking.findMany({
-        where: { userId: Number(req.user.id), status: false },
-      });
-
       // Schedule a progress update reminder if there are incomplete lessons
-      if (allTracking.length > 0 && !allTracking[0].status) {
+      if (falseCount > 0) {
         reminderTimeout = setTimeout(async () => {
-          const lastUpdate = new Date(tracking.updatedAt).getTime();
+          const lastUpdate = new Date(updatedTracking.updatedAt).getTime();
           const currentTime = new Date().getTime();
           const timeDifference = currentTime - lastUpdate;
 
-          // Send a reminder notification if no progress update in the last 24 hours
-          if (timeDifference >= 24 * 60 * 60 * 1000) {
+          // Send a reminder notification if no progress update in the last 3 days
+          if (timeDifference >= 3 * 24 * 60 * 60 * 1000) {
             await prisma.notification.create({
               data: {
                 title: "Reminder",
-                message: "You haven't updated your progress in the last 24 hours. Please continue learning.",
+                message: "You haven't updated your progress in the last 3 days. Please continue learning.",
                 userId: Number(req.user.id),
                 createdAt: formattedDate(new Date()),
               },
             });
           }
-        }, 24 * 60 * 60 * 1000);
+        }, 3 * 24 * 60 * 60 * 1000);
       }
 
       res.status(200).json({
         status: true,
         message: "Tracking updated successfully",
-        data: { tracking },
+        data: { updatedTracking },
       });
     } catch (err) {
       next(err);

@@ -68,7 +68,7 @@ module.exports = {
         },
       });
 
-      let newUserProfile = await prisma.userProfile.create({
+      await prisma.userProfile.create({
         data: {
           fullName,
           phoneNumber,
@@ -83,7 +83,7 @@ module.exports = {
       res.status(201).json({
         status: true,
         message: "Registration successful",
-        data: { newUser, newUserProfile },
+        data: { newUser },
       });
     } catch (err) {
       next(err);
@@ -360,7 +360,67 @@ module.exports = {
     // Generate a JWT token for the authenticated user
     let token = jwt.sign({ id: req.user.id }, JWT_SECRET_KEY);
 
+    const cookieOptions = {
+      secure: true,
+    };
+
+    res.cookie("authToken", token, cookieOptions).redirect(`http://localhost:3000`);
+
     // Redirect to a desired URL
-    res.redirect(`https://final-project-binar-seven.vercel.app?authToken=${token}`);
+    // res.redirect(`https://final-project-binar-seven.vercel.app?authToken=${token}`);
   },
+
+  getAllUsers: catchAsync(async (req, res, next) => {
+    try {
+      const users = await prisma.user.findMany();
+
+      return res.status(200).json({
+        status: true,
+        message: "Get All Users successful",
+        data: { users },
+      });
+    } catch (err) {
+      next(err);
+    }
+  }),
+
+  deleteUserById: catchAsync(async (req, res, next) => {
+    try {
+      const userId = req.params.id;
+
+      // Validation: Check if the userId is a valid number
+      if (isNaN(userId)) {
+        throw new CustomError(400, "Invalid userId");
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { id: Number(userId) },
+      });
+
+      // Validation: Check if the user with the given userId exists
+      if (!user) {
+        throw new CustomError(404, "User not found");
+      }
+
+      if (user.role === "admin") {
+        throw new CustomError(403, "Admins are not allowed to be deleted");
+      }
+
+      await prisma.userProfile.delete({
+        where: { userId: Number(user.id) },
+      });
+
+      const deletedUser = await prisma.user.delete({
+        where: { id: Number(user.id) },
+      });
+
+      return res.status(200).json({
+        status: true,
+        message: "Delete User by Id successful",
+        data: { deletedUser },
+      });
+    } catch (err) {
+      next(err);
+    }
+  }),
 };

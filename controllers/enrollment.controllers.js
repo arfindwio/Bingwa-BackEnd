@@ -23,12 +23,10 @@ module.exports = {
       });
 
       // Return an error if the course is not found
-      if (!course) {
-        throw new CustomError(404, `Course not found with id ${courseId}`);
-      }
+      if (!course) throw new CustomError(404, `Course not found`);
 
       // Check if the user is already enrolled in the course
-      const statusEnrollUser = await prisma.enrollment.findFirst({
+      const existsEnrollment = await prisma.enrollment.findFirst({
         where: {
           courseId: Number(courseId),
           userId: Number(req.user.id),
@@ -36,7 +34,7 @@ module.exports = {
       });
 
       // Return an error if the user is already enrolled
-      if (statusEnrollUser) {
+      if (existsEnrollment) {
         throw new CustomError(400, "User already enrolled in this course");
       }
 
@@ -64,13 +62,12 @@ module.exports = {
       });
 
       // Create tracking records for each lesson to monitor user progress
-      const trackingRecords = await Promise.all(
+      await Promise.all(
         lessons.map(async (lesson) => {
           return prisma.tracking.create({
             data: {
               userId: Number(req.user.id),
               lessonId: lesson.id,
-              courseId: Number(courseId),
               status: false,
               createdAt: formattedDate(new Date()),
               updatedAt: formattedDate(new Date()),
@@ -111,7 +108,7 @@ module.exports = {
             },
           });
         }
-      }, 24 * 60 * 60 * 1000);
+      }, 3 * 24 * 60 * 60 * 1000);
 
       res.status(201).json({
         status: true,
@@ -173,9 +170,9 @@ module.exports = {
   }),
 
   getDetailEnrollment: catchAsync(async (req, res, next) => {
-    const enrollmentId = req.params.id;
-
     try {
+      const enrollmentId = req.params.id;
+
       // Validate if enrollmentId is a number
       if (isNaN(enrollmentId)) {
         throw new CustomError(400, "Invalid enrollmentId provided");
