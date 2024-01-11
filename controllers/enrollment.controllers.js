@@ -131,10 +131,11 @@ module.exports = {
               courseName: true,
               level: true,
               mentor: true,
-              duration: true,
+              totalDuration: true,
               courseImg: true,
               createdAt: true,
               categoryId: true,
+              averageRating: true,
               category: {
                 select: {
                   categoryName: true,
@@ -169,28 +170,32 @@ module.exports = {
     }
   }),
 
-  getDetailEnrollment: catchAsync(async (req, res, next) => {
+  getEnrollmentByCourseId: catchAsync(async (req, res, next) => {
     try {
-      const enrollmentId = req.params.id;
+      const courseId = req.params.courseId;
 
       // Validate if enrollmentId is a number
-      if (isNaN(enrollmentId)) {
-        throw new CustomError(400, "Invalid enrollmentId provided");
+      if (isNaN(courseId)) {
+        throw new CustomError(400, "Invalid courseId provided");
       }
 
       // Retrieve details of the specified enrollment, including associated course details
-      let enrollment = await prisma.enrollment.findUnique({
-        where: { id: Number(enrollmentId) },
+      let enrollment = await prisma.enrollment.findFirst({
+        where: { courseId: Number(courseId), userId: Number(req.user.id) },
         include: {
           course: {
             select: {
+              averageRating: true,
               courseName: true,
               level: true,
               mentor: true,
-              duration: true,
+              totalDuration: true,
               courseImg: true,
               createdAt: true,
               categoryId: true,
+              aboutCourse: true,
+              targetAudience: true,
+              videoURL: true,
               category: {
                 select: {
                   categoryName: true,
@@ -204,6 +209,7 @@ module.exports = {
                   duration: true,
                   lesson: {
                     select: {
+                      id: true,
                       lessonName: true,
                       videoURL: true,
                       createdAt: true,
@@ -223,7 +229,7 @@ module.exports = {
 
       return res.status(200).json({
         status: true,
-        message: "Get detail enrollment successful",
+        message: "Get enrollment by courseId successful",
         data: { enrollment },
       });
     } catch (err) {

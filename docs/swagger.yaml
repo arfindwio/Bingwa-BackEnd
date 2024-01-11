@@ -976,130 +976,6 @@ paths:
                   message:
                     type: string
                     example: "failed"
-  /courses/me:
-    get:
-      tags:
-        - Courses
-      operationId: get-all-courses-enroll
-      summary: Get all courses by user enroll
-      description: Get all courses by user enroll
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: search
-          in: query
-          description: search for get courses
-          schema:
-            type: string
-        - name: filter
-          in: query
-          description: filter for get courses
-          schema:
-            type: string
-        - name: category
-          in: query
-          description: category for get courses
-          schema:
-            type: string
-        - name: level
-          in: query
-          description: level for get courses
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        properties:
-                          course:
-                            type: array
-                            items:
-                              allOf:
-                                - $ref: "#/components/schemas/CourseModelEnroll"
-                                - type: object
-                                  properties:
-                                    category:
-                                      allOf:
-                                        - $ref: "#/components/schemas/CategoryModel"
-                          courseNotEnrol:
-                            type: array
-                            items:
-                              allOf:
-                                - $ref: "#/components/schemas/CourseModelNotEnroll"
-                                - type: object
-                                  properties:
-                                    category:
-                                      allOf:
-                                        - $ref: "#/components/schemas/CategoryModel"
-  /courses/{courseId}/me:
-    get:
-      tags:
-        - Courses
-      operationId: get-courseEnrolUser-by-id
-      summary: get detail cpurse when user alredy enrol by id
-      description: get courseEnrolUser by id
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: courseId
-          schema:
-            type: integer
-          required: true
-          description: The ID of the course to retrieve.
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        properties:
-                          course:
-                            allOf:
-                              - $ref: "#/components/schemas/DetailCourseModelEnroll"
-                              - type: object
-                                properties:
-                                  chapter:
-                                    type: array
-                                    items:
-                                      allOf:
-                                        - $ref: "#/components/schemas/ChapterModel"
-                                        - type: object
-                                          properties:
-                                            lesson:
-                                              type: array
-                                              items:
-                                                $ref: "#/components/schemas/LessonModel"
-                                  category:
-                                    allOf:
-                                      - $ref: "#/components/schemas/CategoryModel"
-        "400":
-          description: You Not Enroll this course
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    example: false
-                  message:
-                    type: string
-                    example: "You Not Enroll this course "
   /courses/{courseId}:
     get:
       tags:
@@ -1922,18 +1798,18 @@ paths:
                                                         type: array
                                                         items:
                                                           $ref: "#/components/schemas/LessonModel"
-  /enrollments/{enrollmentId}:
+  /enrollments/{courseId}:
     get:
       tags:
         - Enrollments
-      operationId: get-enrollment-by-id
-      summary: get enrollment by id
-      description: get enrollment by id
+      operationId: get-enrollment-by-course-id
+      summary: get enrollment by course id
+      description: get enrollment by course id
       security:
         - bearerAuth: []
       parameters:
         - in: path
-          name: enrollmentId
+          name: courseId
           schema:
             type: integer
           required: true
@@ -1987,7 +1863,6 @@ paths:
                   message:
                     type: string
                     example: "failed"
-  /enrollments/{courseId}:
     post:
       tags:
         - Enrollments
@@ -2448,6 +2323,40 @@ paths:
                               count:
                                 type: integer
                                 example: 10
+  /trackings/{courseId}:
+    get:
+      tags:
+        - Trackings
+      operationId: get-all-trackings-by-course-id
+      summary: get all trackings by course id
+      description: get all trackings by course id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: courseId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the course to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          trackings:
+                            type: array
+                            items:
+                              allOf:
+                                - $ref: "#/components/schemas/TrackingModel"
   /trackings/{lessonId}:
     put:
       tags:
@@ -3169,55 +3078,6 @@ components:
         statusEnrol:
           type: boolean
           example: true
-    CourseModelNotEnroll:
-      title: Course
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 2
-        courseName:
-          type: string
-          example: "Intro to Basic Web"
-        averageRating:
-          type: number
-          format: float
-          example: 5
-        level:
-          type: string
-        mentor:
-          type: string
-          example: "Simon Doe"
-        isPremium:
-          type: boolean
-          example: true
-        videoURL:
-          type: string
-          example: "https://youtu.be/ixOd42SEUF0"
-        forumURL:
-          type: string
-          example: "https://web.telegram.org"
-        duration:
-          type: integer
-          example: 120
-        courseImg:
-          type: string
-          example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
-        category:
-          type: object
-          properties:
-            id:
-              type: integer
-              example: 1
-            categoryName:
-              type: string
-              example: "Web Development"
-        modul:
-          type: integer
-          example: 2
-        statusEnrol:
-          type: boolean
-          example: false
     LessonModel:
       title: Lesson
       type: object

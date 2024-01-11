@@ -128,4 +128,43 @@ module.exports = {
       next(err);
     }
   }),
+
+  getTrackingByCourseId: catchAsync(async (req, res, next) => {
+    try {
+      const courseId = req.params.courseId;
+
+      // Validate the provided lessonId
+      if (isNaN(courseId) || courseId <= 0) throw new CustomError(400, "Invalid lessonId parameter");
+
+      // Find the tracking record for the user and lesson
+      const allTrackings = await prisma.tracking.findMany({
+        where: {
+          lesson: {
+            chapter: {
+              course: {
+                id: Number(courseId),
+              },
+            },
+          },
+          userId: Number(req.user.id),
+        },
+        select: {
+          id: true,
+          status: true,
+          lessonId: true,
+        },
+      });
+
+      // Check if the tracking record exists
+      if (!allTrackings) throw new CustomError(404, "Tracking record by courseId not found");
+
+      res.status(200).json({
+        status: true,
+        message: "Tracking updated successfully",
+        data: { allTrackings },
+      });
+    } catch (err) {
+      next(err);
+    }
+  }),
 };
