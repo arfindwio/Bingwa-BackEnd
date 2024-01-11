@@ -64,8 +64,6 @@ module.exports = {
             },
           });
 
-          console.log(newLesson.id);
-
           const allTracking = await prisma.tracking.findMany({
             where: {
               userId: Number(enrollment.userId),
