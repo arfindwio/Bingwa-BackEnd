@@ -189,37 +189,6 @@ module.exports = {
     }
   }),
 
-  getDetailLesson: catchAsync(async (req, res, next) => {
-    try {
-      const lessonId = req.params.id;
-
-      // Retrieve details of the specified lesson, including associated chapter details
-      const lesson = await prisma.lesson.findUnique({
-        where: { id: Number(lessonId) },
-        include: {
-          chapter: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      });
-
-      // Return an error if the lesson is not found
-      if (!lesson) {
-        throw new CustomError(404, "Lesson not found");
-      }
-
-      res.status(200).json({
-        status: true,
-        message: "Get detail lesson successful",
-        data: { lesson },
-      });
-    } catch (err) {
-      next(err);
-    }
-  }),
-
   updateLessonById: catchAsync(async (req, res, next) => {
     try {
       const lessonId = req.params.id;
@@ -383,40 +352,37 @@ module.exports = {
   //   }
   // });
 
-  showLessonByCourse: catchAsync(async (req, res, next) => {
+  getAllLessonByCourseId: catchAsync(async (req, res, next) => {
     try {
-      const { idCourse } = req.params;
+      const courseId = req.params.courseId;
 
       // Find the course with the specified ID
-      const findCourse = await prisma.course.findFirst({
+      const course = await prisma.course.findFirst({
         where: {
-          id: Number(idCourse),
+          id: Number(courseId),
         },
       });
 
       // Return an error if the course is not found
-      if (!findCourse) {
-        throw new CustomError(404, `Course Not Found With Id ${idCourse}`);
+      if (!course) {
+        throw new CustomError(404, `Course Not Found`);
       }
 
-      // Retrieve all chapters and associated lessons for the specified course
-      let filterLesson = await prisma.chapter.findMany({
+      // Retrieve all  and associated lessons for the specified course
+      let lessons = await prisma.lesson.findMany({
         where: {
-          courseId: Number(idCourse),
-        },
-        include: {
-          lesson: {
-            select: {
-              lessonName: true,
-              videoURL: true,
+          chapter: {
+            course: {
+              id: Number(course.id),
             },
           },
         },
       });
+
       res.status(200).json({
         status: true,
         message: "Show All Video in Course",
-        data: filterLesson,
+        data: { lessons },
       });
     } catch (err) {
       next(err);

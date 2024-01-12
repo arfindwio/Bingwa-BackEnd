@@ -1025,7 +1025,7 @@ paths:
                                               example: 1
                                             name:
                                               type: string
-                                              example: "Chapter 1 - Pendahuluan"
+                                              example: "Pendahuluan"
                                             duration:
                                               type: integer
                                               example: 90
@@ -1445,7 +1445,7 @@ paths:
                                           properties:
                                             name:
                                               type: string
-                                              example: "Chapter 1 - Pendahuluan"
+                                              example: "Pendahuluan"
                                             course:
                                               allOf:
                                                 - type: object
@@ -1560,6 +1560,55 @@ paths:
                               properties:
                                 chapter:
                                   $ref: "#/components/schemas/ChapterModel"
+  /lessons/{courseId}:
+    get:
+      tags:
+        - Lessons
+      operationId: get-all-lessons-by-course-id
+      summary: get all lessons by course-id
+      description: get all lessons by course-id
+      parameters:
+        - in: path
+          name: courseId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the course to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: "#/components/schemas/ChapterModel"
+                            - type: object
+                              properties:
+                                lesson:
+                                  type: array
+                                  items:
+                                    allOf:
+                                      - $ref: "#/components/schemas/LessonModel"
+        "404":
+          description: Request Field Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Chapter not found"
   /lessons/{lessonId}:
     get:
       tags:
@@ -1600,7 +1649,7 @@ paths:
                                         properties:
                                           name:
                                             type: string
-                                            example: "Chapter 1 - Pendahuluan"
+                                            example: "Pendahuluan"
         "404":
           description: Lesson Not Found
           content:
@@ -1702,55 +1751,6 @@ paths:
                   message:
                     type: string
                     example: "failed"
-  /lessons/{courseId}/course:
-    get:
-      tags:
-        - Lessons
-      operationId: get-lessons-by-course
-      summary: get lessons by course
-      description: get lessons by course
-      parameters:
-        - in: path
-          name: courseId
-          schema:
-            type: integer
-          required: true
-          description: The ID of the course to retrieve.
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          allOf:
-                            - $ref: "#/components/schemas/ChapterModel"
-                            - type: object
-                              properties:
-                                lesson:
-                                  type: array
-                                  items:
-                                    allOf:
-                                      - $ref: "#/components/schemas/LessonModel"
-        "404":
-          description: Request Field Not Found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    example: false
-                  message:
-                    type: string
-                    example: "Chapter not found"
   /enrollments:
     get:
       tags:
@@ -3437,7 +3437,7 @@ components:
             properties:
               name:
                 type: string
-                example: "Chapter 1 - Pendahuluan"
+                example: "Pendahuluan"
               courseId:
                 type: integer
                 example: 1
@@ -3452,7 +3452,7 @@ components:
             properties:
               name:
                 type: string
-                example: "Chapter 1 - Pendahuluan"
+                example: "Pendahuluan"
               courseId:
                 type: integer
                 example: 1
