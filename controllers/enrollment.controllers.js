@@ -149,6 +149,7 @@ module.exports = {
                   duration: true,
                   lesson: {
                     select: {
+                      id: true,
                       lessonName: true,
                       videoURL: true,
                       createdAt: true,
@@ -196,6 +197,7 @@ module.exports = {
               aboutCourse: true,
               targetAudience: true,
               videoURL: true,
+              forumURL: true,
               category: {
                 select: {
                   categoryName: true,
