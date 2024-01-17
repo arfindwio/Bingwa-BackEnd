@@ -166,6 +166,7 @@ module.exports = {
               name: true,
               course: {
                 select: {
+                  id: true,
                   courseName: true,
                   category: {
                     select: {

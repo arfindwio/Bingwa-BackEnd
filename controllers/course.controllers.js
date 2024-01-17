@@ -205,7 +205,7 @@ module.exports = {
 
   getCourse: catchAsync(async (req, res, next) => {
     try {
-      const { search, filter, category, level, page = 1, limit = 10 } = req.query;
+      const { search, f, c, l, page = 1, limit = 10 } = req.query;
 
       // Initialize an object to store query parameters for Prisma
       let coursesQuery = {
@@ -218,36 +218,36 @@ module.exports = {
       }
 
       // Apply sorting/filtering based on filter parameter
-      if (filter) {
+      if (f) {
         coursesQuery.orderBy = [];
-        if (filter.includes("newest")) {
+        if (f.includes("newest")) {
           coursesQuery.orderBy.push({ createdAt: "desc" });
         }
-        if (filter.includes("populer")) {
+        if (f.includes("populer")) {
           coursesQuery.orderBy.push({ averageRating: "desc" });
         }
-        if (filter.includes("promo")) {
+        if (f.includes("promo")) {
           coursesQuery.where.promotionId = { not: null };
         }
-        if (filter.includes("premium")) {
+        if (f.includes("premium")) {
           coursesQuery.where.isPremium = true;
         }
-        if (filter.includes("free")) {
+        if (f.includes("free")) {
           coursesQuery.where.isPremium = false;
         }
       }
 
       // Apply filtering based on category if provided
-      if (category) {
-        const categories = Array.isArray(category) ? category.map((c) => c.toLowerCase()) : [category.toLowerCase()];
+      if (c) {
+        const categories = Array.isArray(c) ? c.map((category) => category.toLowerCase()) : [c.toLowerCase()];
         coursesQuery.where.category = {
           categoryName: { in: categories, mode: "insensitive" },
         };
       }
 
       // Apply filtering based on level if provided
-      if (level) {
-        const levels = Array.isArray(level) ? level : [level];
+      if (l) {
+        const levels = Array.isArray(l) ? l : [l];
         coursesQuery.where.level = { in: levels };
       }
 
@@ -318,11 +318,11 @@ module.exports = {
 
       // Modify each course object to include additional information and remove unnecessary count object
       courses = courses.map((val) => {
-        val["modul"] = val._count.chapter;
-        val["totalReviews"] = val.enrollment.reduce((sum, enrollment) => {
+        val.modul = val._count.chapter;
+        val.totalReviews = val.enrollment.reduce((sum, enrollment) => {
           return sum + (enrollment.review ? 1 : 0);
         }, 0);
-        delete val["_count"];
+        delete val._count;
         return val;
       });
 
