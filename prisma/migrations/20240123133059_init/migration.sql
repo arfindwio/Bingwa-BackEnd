@@ -108,10 +108,11 @@ CREATE TABLE "Notification" (
 -- CreateTable
 CREATE TABLE "Enrollment" (
     "id" SERIAL NOT NULL,
+    "progress" DECIMAL(65,30) NOT NULL DEFAULT 0,
+    "preparationCheck" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TEXT NOT NULL,
     "userId" INTEGER,
     "courseId" INTEGER,
-    "progres" DECIMAL(65,30) NOT NULL DEFAULT 0,
 
     CONSTRAINT "Enrollment_pkey" PRIMARY KEY ("id")
 );

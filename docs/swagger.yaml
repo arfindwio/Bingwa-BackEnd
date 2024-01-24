@@ -1819,6 +1819,63 @@ paths:
                   message:
                     type: string
                     example: "failed"
+    put:
+      tags:
+        - Enrollments
+      operationId: update-enrollment-preparation-by-course-id
+      summary: update enrollment preparation by course id
+      description: update enrollment preparation by course id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: courseId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the enrollment to retrieve.
+      responses:
+        "201":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          updatedEnrollment:
+                            allOf:
+                              - $ref: "#/components/schemas/EnrollmentModel"
+        "400":
+          description: Invalid courseId provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Course Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
   /reviews/{courseId}:
     post:
       tags:
@@ -2916,7 +2973,7 @@ components:
             id:
               type: integer
               example: 1
-            progres:
+            progress:
               type: string
               example: "33.3"
     CourseModelEnroll:
@@ -2968,7 +3025,7 @@ components:
             id:
               type: integer
               example: 1
-            progres:
+            progress:
               type: string
               example: "33.3"
         modul:
@@ -3015,7 +3072,7 @@ components:
         courseId:
           type: integer
           example: 1
-        progres:
+        progress:
           type: number
           format: float
           example: 0

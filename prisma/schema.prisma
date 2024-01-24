@@ -114,14 +114,15 @@ model Notification {
 }
 
 model Enrollment {
-  id        Int     @id @default(autoincrement())
-  createdAt String
-  userId    Int?
-  user      User?   @relation(fields: [userId], references: [id])
-  courseId  Int?
-  course    Course? @relation(fields: [courseId], references: [id])
-  progres   Decimal @default(0)
-  review    Review?
+  id               Int     @id @default(autoincrement())
+  progress         Decimal @default(0)
+  preparationCheck Boolean @default(false)
+  createdAt        String
+  userId           Int?
+  user             User?   @relation(fields: [userId], references: [id])
+  courseId         Int?
+  course           Course? @relation(fields: [courseId], references: [id])
+  review           Review?
 }
 
 model Payment {
