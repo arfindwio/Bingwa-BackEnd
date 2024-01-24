@@ -85,7 +85,7 @@ module.exports = {
               id: Number(enrollment.id),
             },
             data: {
-              progres: updatedProgress,
+              progress: updatedProgress,
             },
           });
 
@@ -166,6 +166,7 @@ module.exports = {
               name: true,
               course: {
                 select: {
+                  id: true,
                   courseName: true,
                   category: {
                     select: {

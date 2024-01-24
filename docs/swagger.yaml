@@ -1512,54 +1512,6 @@ paths:
                   message:
                     type: string
                     example: "Chapter not found"
-
-  /lessons/filter:
-    get:
-      tags:
-        - Lessons
-      operationId: get-lessons
-      summary: Get lessons
-      description: Get lessons
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: chapter
-          in: query
-          description: chapter for get lessons
-          required: true
-          schema:
-            type: string
-        - name: lesson
-          in: query
-          description: lesson for get lessons
-          schema:
-            type: string
-        - name: course
-          in: query
-          description: course for get lessons
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        properties:
-                          lessons:
-                            type: array
-                            items:
-                              $ref: "#/components/schemas/LessonModel"
-                              type: object
-                              properties:
-                                chapter:
-                                  $ref: "#/components/schemas/ChapterModel"
   /lessons/{courseId}:
     get:
       tags:
@@ -1610,59 +1562,6 @@ paths:
                     type: string
                     example: "Chapter not found"
   /lessons/{lessonId}:
-    get:
-      tags:
-        - Lessons
-      operationId: get-lesson-by-id
-      summary: get lesson by id
-      description: get lesson by id
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: lessonId
-          schema:
-            type: integer
-          required: true
-          description: The ID of the lesson to retrieve.
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        properties:
-                          lesson:
-                            allOf:
-                              - $ref: "#/components/schemas/LessonModel"
-                              - type: object
-                                properties:
-                                  chapter:
-                                    allOf:
-                                      - type: object
-                                        properties:
-                                          name:
-                                            type: string
-                                            example: "Pendahuluan"
-        "404":
-          description: Lesson Not Found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    example: false
-                  message:
-                    type: string
-                    example: "failed"
     put:
       tags:
         - Lessons
@@ -1909,6 +1808,63 @@ paths:
                     example: "failed"
         "404":
           description: Enrollment Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+    put:
+      tags:
+        - Enrollments
+      operationId: update-enrollment-preparation-by-course-id
+      summary: update enrollment preparation by course id
+      description: update enrollment preparation by course id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: courseId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the enrollment to retrieve.
+      responses:
+        "201":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          updatedEnrollment:
+                            allOf:
+                              - $ref: "#/components/schemas/EnrollmentModel"
+        "400":
+          description: Invalid courseId provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Course Not Found
           content:
             application/json:
               schema:
@@ -3017,7 +2973,7 @@ components:
             id:
               type: integer
               example: 1
-            progres:
+            progress:
               type: string
               example: "33.3"
     CourseModelEnroll:
@@ -3069,7 +3025,7 @@ components:
             id:
               type: integer
               example: 1
-            progres:
+            progress:
               type: string
               example: "33.3"
         modul:
@@ -3116,7 +3072,7 @@ components:
         courseId:
           type: integer
           example: 1
-        progres:
+        progress:
           type: number
           format: float
           example: 0

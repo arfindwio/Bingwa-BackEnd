@@ -89,7 +89,7 @@ module.exports = {
           id: Number(enrollment.id),
         },
         data: {
-          progres: updatedProgress,
+          progress: updatedProgress,
         },
       });
 

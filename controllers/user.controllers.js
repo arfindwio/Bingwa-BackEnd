@@ -365,9 +365,6 @@ module.exports = {
     };
 
     res.cookie("authToken", token, cookieOptions).redirect(`http://localhost:3000`);
-
-    // Redirect to a desired URL
-    // res.redirect(`https://final-project-binar-seven.vercel.app?authToken=${token}`);
   },
 
   getAllUsers: catchAsync(async (req, res, next) => {
