@@ -246,6 +246,15 @@ module.exports = {
               },
             },
           },
+          user: {
+            select: {
+              userProfile: {
+                select: {
+                  fullName: true,
+                },
+              },
+            },
+          },
           paymentCode: true,
         },
       });
