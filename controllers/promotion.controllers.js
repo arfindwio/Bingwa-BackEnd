@@ -132,10 +132,13 @@ const editPromotionById = catchAsync(async (req, res, next) => {
     // Validate that all required fields are provided
     if (!discount || !startDate || !endDate) throw new CustomError(400, "All fields must be filled");
 
+    let formattedStartDate = formattedDate(startDate);
+    let formattedEndDate = formattedDate(endDate);
+
     // Update the promotion details in the database
     const updatedPromotion = await prisma.promotion.update({
       where: { id: Number(promotionId) },
-      data: { discount, startDate, endDate },
+      data: { discount, startDate: formattedStartDate, endDate: formattedEndDate },
     });
 
     res.status(200).json({

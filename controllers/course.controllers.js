@@ -35,10 +35,7 @@ module.exports = {
       if (!promotion) throw new CustomError(404, "Promotion not found");
     }
 
-    // Validate if isPremium is true, promotionId should not be provided
-    if (updatedIsPremium && promotionId !== undefined) {
-      throw new CustomError(400, "Cannot provide promotionId when isPremium is true");
-    }
+    const finalPromotionId = updatedIsPremium ? promotionId : null;
 
     // Create a new course using Prisma
     let newCourse = await prisma.course.create({
@@ -102,7 +99,7 @@ module.exports = {
     // Update the course using Prisma
     let editedCourse = await prisma.course.update({
       where: {
-        id: Number(idCourse),
+        id: Number(course.id),
       },
       data: {
         ...req.body,
