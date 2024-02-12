@@ -9,6 +9,7 @@ const { formattedDate } = require("../utils/formattedDate");
 const { generatedPaymentCode } = require("../utils/codeGenerator");
 const catchAsync = require("../utils/catchAsync");
 const { CustomError } = require("../utils/errorHandler");
+const { getPagination } = require("../utils/getPagination");
 
 const { PAYMENT_DEV_CLIENT_KEY, PAYMENT_DEV_SERVER_KEY, PAYMENT_PROD_CLIENT_KEY, PAYMENT_PROD_SERVER_KEY } = process.env;
 
@@ -95,7 +96,7 @@ module.exports = {
         },
       });
 
-      const html = await nodemailer.getHtml("transaction-succes.ejs", {
+      const html = await nodemailer.getHtml("transaction-success.ejs", {
         course: course.courseName,
       });
       await nodemailer.sendEmail(req.user.email, "Email Transaction", html);
@@ -205,10 +206,12 @@ module.exports = {
 
   getAllPayments: catchAsync(async (req, res, next) => {
     try {
-      const { search } = req.query;
+      const { search, page = 1, limit = 10 } = req.query;
 
       // Find payments based on search criteria
       let payments = await prisma.payment.findMany({
+        skip: (Number(page) - 1) * Number(limit),
+        take: Number(limit),
         where: {
           OR: [
             { status: { contains: search, mode: "insensitive" } },
@@ -259,10 +262,38 @@ module.exports = {
         },
       });
 
+      const totalPayments = await prisma.payment.count({
+        where: {
+          OR: [
+            { status: { contains: search, mode: "insensitive" } },
+            {
+              course: { courseName: { contains: search, mode: "insensitive" } },
+            },
+            {
+              user: {
+                userProfile: {
+                  fullName: { contains: search, mode: "insensitive" },
+                },
+              },
+            },
+            {
+              course: {
+                category: {
+                  categoryName: { contains: search, mode: "insensitive" },
+                },
+              },
+            },
+          ],
+        },
+      });
+
+      // Generate pagination information
+      const pagination = getPagination(req, totalPayments, Number(page), Number(limit));
+
       res.status(200).json({
         status: true,
         message: "Get all payments successful",
-        data: { payments },
+        data: { pagination, payments },
       });
     } catch (err) {
       next(err);
@@ -281,9 +312,10 @@ module.exports = {
             select: {
               id: true,
               courseName: true,
+              courseImg: true,
               mentor: true,
               averageRating: true,
-              duration: true,
+              totalDuration: true,
               level: true,
               price: true,
               category: {
@@ -291,6 +323,7 @@ module.exports = {
                   categoryName: true,
                 },
               },
+              enrollment: true,
               _count: {
                 select: {
                   chapter: true,
@@ -320,7 +353,7 @@ module.exports = {
 
   createPaymentMidtrans: catchAsync(async (req, res, next) => {
     try {
-      const courseId = req.params.courseId;
+      const { courseId } = req.params;
       const { methodPayment, cardNumber, cvv, expiryDate, bankName, store, message, createdAt, updatedAt } = req.body;
 
       // Validate that createdAt and updatedAt are not provided during payment creation
@@ -351,6 +384,7 @@ module.exports = {
       const course = await prisma.course.findUnique({
         where: { id: Number(courseId) },
         include: {
+          promotion: true,
           category: {
             select: {
               categoryName: true,
@@ -372,7 +406,7 @@ module.exports = {
       // Check if the user is already enrolled in the course
       const enrollmentUser = await prisma.enrollment.findFirst({
         where: {
-          courseId: Number(courseId),
+          courseId: Number(course.id),
           userId: Number(req.user.id),
         },
       });
@@ -386,7 +420,7 @@ module.exports = {
       const modifiedName = course.category.categoryName.replace(/\s+/g, "-");
 
       // Calculate the total price for the payment
-      const totalPrice = course.price * 0.11 + course.price;
+      const totalPrice = course.promotion ? (course.price - course.promotion.discount * course.price) * (1 + 0.11) : course.price * 0.11 + course.price;
 
       // Create a new payment record in the database
       let newPayment = await prisma.payment.create({
@@ -395,7 +429,7 @@ module.exports = {
           status: "Paid",
           methodPayment,
           paymentCode: `${modifiedName}-${generatedPaymentCode()}`,
-          courseId: Number(courseId),
+          courseId: Number(course.id),
           userId: Number(req.user.id),
           createdAt: formattedDate(new Date()),
           updatedAt: formattedDate(new Date()),
@@ -472,7 +506,7 @@ module.exports = {
       }
 
       if (methodPayment === "Counter") {
-        if (bankName !== undefined || cardNumber !== undefined || cvv !== undefined || expiryDate !== undefined || store !== undefined) {
+        if (bankName !== undefined || cardNumber !== undefined || cvv !== undefined || expiryDate !== undefined || !store || !message) {
           throw new CustomError(400, "Please provide only the required card details (cardNumber, cvv, expiryDate) for this payment method. Other fields are not applicable.");
         }
 
@@ -510,13 +544,13 @@ module.exports = {
       const html = await nodemailer.getHtml("transaction-success.ejs", {
         course: course.courseName,
       });
-      await nodemailer.sendEmail(req.user.email, "Email Transaction", html);
+      nodemailer.sendEmail(user.email, "Email Transaction", html);
 
       // Create enrollment record for the user
       await prisma.enrollment.create({
         data: {
           userId: Number(req.user.id),
-          courseId: Number(courseId),
+          courseId: Number(course.id),
           createdAt: formattedDate(new Date()),
         },
       });
@@ -534,7 +568,7 @@ module.exports = {
       const lessons = await prisma.lesson.findMany({
         where: {
           chapter: {
-            courseId: Number(courseId),
+            courseId: Number(course.id),
           },
         },
       });
@@ -545,7 +579,7 @@ module.exports = {
             data: {
               userId: Number(req.user.id),
               lessonId: lesson.id,
-              courseId: Number(courseId),
+              courseId: Number(course.id),
               status: false,
               createdAt: formattedDate(new Date()),
               updatedAt: formattedDate(new Date()),
@@ -574,7 +608,7 @@ module.exports = {
     }
   }),
 
-  /// Controller to handle Midtrans payment notifications
+  // Controller to handle Midtrans payment notifications
   handlePaymentNotification: catchAsync(async (req, res, next) => {
     try {
       // Extract payment notification data from the request body

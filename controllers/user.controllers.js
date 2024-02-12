@@ -175,13 +175,19 @@ module.exports = {
       otp = otpObject.code;
       otpCreatedAt = otpObject.createdAt;
 
+      const user = await prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (!user) throw new CustomError(404, "Email not found");
+
       // Send the new OTP via email
       const html = await nodemailer.getHtml("verify-otp.ejs", { email, otp });
       await nodemailer.sendEmail(email, "Email Activation", html);
 
       // Update user's OTP and OTP creation timestamp
       const updateOtp = await prisma.user.update({
-        where: { email },
+        where: { email, id: Number(user.id) },
         data: { otp, otpCreatedAt },
       });
 

@@ -2,8 +2,9 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const catchAsync = require("../utils/catchAsync");
-const { CustomError } = require("../utils/errorHandler");
 const { formattedDate } = require("../utils/formattedDate");
+const { getPagination } = require("../utils/getPagination");
+const { CustomError } = require("../utils/errorHandler");
 
 // Controller for creating a new promotion
 const createPromotion = catchAsync(async (req, res, next) => {
@@ -63,10 +64,12 @@ const createPromotion = catchAsync(async (req, res, next) => {
 // Controller for getting all promotions with optional search query
 const getAllPromotions = catchAsync(async (req, res, next) => {
   try {
-    const { search } = req.query;
+    const { search, page = 1, limit = 10 } = req.query;
 
     // Retrieve promotions from the database based on the search query
     const promotions = await prisma.promotion.findMany({
+      skip: (Number(page) - 1) * Number(limit),
+      take: Number(limit),
       where: search
         ? {
             OR: [search && { discount: parseFloat(search) }, search && { startDate: { contains: search, mode: "insensitive" } }, search && { endDate: { contains: search, mode: "insensitive" } }].filter(Boolean),
@@ -74,10 +77,21 @@ const getAllPromotions = catchAsync(async (req, res, next) => {
         : {},
     });
 
+    const totalPromotions = await prisma.payment.count({
+      where: search
+        ? {
+            OR: [search && { discount: parseFloat(search) }, search && { startDate: { contains: search, mode: "insensitive" } }, search && { endDate: { contains: search, mode: "insensitive" } }].filter(Boolean),
+          }
+        : {},
+    });
+
+    // Generate pagination information
+    const pagination = getPagination(req, totalPromotions, Number(page), Number(limit));
+
     res.status(200).json({
       status: true,
       message: "Get all promotions successful",
-      data: { promotions },
+      data: { pagination, promotions },
     });
   } catch (err) {
     next(err);

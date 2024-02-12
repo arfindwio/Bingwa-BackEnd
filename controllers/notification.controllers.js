@@ -10,6 +10,7 @@ module.exports = {
     try {
       // Retrieve all notifications for the authenticated user
       const notifications = await prisma.notification.findMany({
+        orderBy: { createdAt: "desc" },
         where: { userId: Number(req.user.id) },
       });
 

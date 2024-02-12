@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 const catchAsync = require("../utils/catchAsync");
 const { CustomError } = require("../utils/errorHandler");
 const { formattedDate } = require("../utils/formattedDate");
+const { getPagination } = require("../utils/getPagination");
 
 let reminderTimeout;
 
@@ -136,10 +137,12 @@ module.exports = {
 
   getAllLessons: catchAsync(async (req, res, next) => {
     try {
-      const { search } = req.query;
+      const { search, page = 1, limit = 10 } = req.query;
 
       // Retrieve all lessons based on the search criteria
       const lessons = await prisma.lesson.findMany({
+        skip: (Number(page) - 1) * Number(limit),
+        take: Number(limit),
         where: {
           OR: [
             { lessonName: { contains: search, mode: "insensitive" } },
@@ -180,10 +183,36 @@ module.exports = {
         },
       });
 
+      const totalLessons = await prisma.lesson.count({
+        where: {
+          OR: [
+            { lessonName: { contains: search, mode: "insensitive" } },
+            { chapter: { name: { contains: search, mode: "insensitive" } } },
+            {
+              chapter: {
+                course: { courseName: { contains: search, mode: "insensitive" } },
+              },
+            },
+            {
+              chapter: {
+                course: {
+                  category: {
+                    categoryName: { contains: search, mode: "insensitive" },
+                  },
+                },
+              },
+            },
+          ],
+        },
+      });
+
+      // Generate pagination information
+      const pagination = getPagination(req, totalLessons, Number(page), Number(limit));
+
       res.status(200).json({
         status: true,
         message: "Get all lessons successful",
-        data: { lessons },
+        data: { pagination, lessons },
       });
     } catch (err) {
       next(err);
@@ -382,7 +411,7 @@ module.exports = {
 
       res.status(200).json({
         status: true,
-        message: "Show All Video in Course",
+        message: "Show All Lesson By course Id",
         data: { lessons },
       });
     } catch (err) {
