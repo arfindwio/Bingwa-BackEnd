@@ -34,8 +34,6 @@ tags:
     description: Operations about Tracking
   - name: Payments
     description: Operations about Payment
-  - name: Admin
-    description: Operations about detail informaton class
 paths:
   /users/register:
     post:
@@ -2680,37 +2678,6 @@ paths:
                   message:
                     type: string
                     example: "failed"
-  /admin/all:
-    get:
-      tags:
-        - Admin
-      operationId: admin-detail-page
-      summary: admin detail page
-      description: detail page admin
-      security:
-        - bearerAuth: []
-      responses:
-        "201":
-          description: User registration was successful
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        properties:
-                          countUser:
-                            type: integer
-                            example: 2
-                          allCourse:
-                            type: integer
-                            example: 4
-                          coursePremium:
-                            type: integer
-                            example: 1
 components:
   schemas:
     BasicResponse:
@@ -3279,31 +3246,31 @@ components:
                 example: "Canada"
     CreateCategory:
       content:
-        application/json:
+        multipart/form-data:
           schema:
             type: object
             properties:
               categoryName:
                 type: string
                 example: "UI/UX Design"
-              categoryImg:
+              image:
                 type: string
-                example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
+                format: binary
     EditCategory:
       content:
-        application/json:
+        multipart/form-data:
           schema:
             type: object
             properties:
               categoryName:
                 type: string
                 example: "UI/UX Design"
-              categoryImg:
+              image:
                 type: string
-                example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
+                format: binary
     CreateCourse:
       content:
-        application/json:
+        multipart/form-data:
           schema:
             type: object
             properties:
@@ -3334,9 +3301,9 @@ components:
               forumURL:
                 type: string
                 example: "https://web.telegram.org"
-              courseImg:
+              image:
                 type: string
-                example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
+                format: binary
               categoryId:
                 type: integer
                 example: 1
@@ -3345,7 +3312,7 @@ components:
                 example: null
     EditCourse:
       content:
-        application/json:
+        multipart/form-data:
           schema:
             type: object
             properties:
@@ -3376,15 +3343,14 @@ components:
               forumURL:
                 type: string
                 example: "https://web.telegram.org"
-              courseImg:
+              image:
                 type: string
-                example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
+                format: binary
               categoryId:
                 type: integer
                 example: 1
               promotionId:
                 type: integer
-                example: null
     CreateChapter:
       content:
         application/json:

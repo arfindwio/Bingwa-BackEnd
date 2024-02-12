@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 const catchAsync = require("../utils/catchAsync");
 const { CustomError } = require("../utils/errorHandler");
 const { formattedDate } = require("../utils/formattedDate");
+const { getPagination } = require("../utils/getPagination");
 
 // Controller for creating a new chapter
 const createChapter = catchAsync(async (req, res, next) => {
@@ -48,10 +49,12 @@ const createChapter = catchAsync(async (req, res, next) => {
 
 // Controller to get a list of chapters with search options
 const getChapters = catchAsync(async (req, res, next) => {
-  const { search } = req.query;
+  const { search, page = 1, limit = 10 } = req.query;
 
   // Retrieve a list of chapters with filtering based on search criteria
   const chapters = await prisma.chapter.findMany({
+    skip: (Number(page) - 1) * Number(limit),
+    take: Number(limit),
     where: {
       OR: [
         { name: { contains: search, mode: "insensitive" } },
@@ -81,10 +84,24 @@ const getChapters = catchAsync(async (req, res, next) => {
     },
   });
 
+  const totalChapters = await prisma.chapter.count({
+    where: {
+      OR: [
+        { name: { contains: search, mode: "insensitive" } },
+        { lesson: { some: { lessonName: { contains: search, mode: "insensitive" } } } },
+        { course: { courseName: { contains: search, mode: "insensitive" } } },
+        { course: { category: { categoryName: { contains: search, mode: "insensitive" } } } },
+      ],
+    },
+  });
+
+  // Generate pagination information
+  const pagination = getPagination(req, totalChapters, Number(page), Number(limit));
+
   res.status(200).json({
     status: true,
     message: "Get chapters success",
-    data: { chapters },
+    data: { pagination, chapters },
   });
 });
 

@@ -14,24 +14,16 @@ module.exports = {
     let imageURL;
 
     // Validation checks for mandatory fields
-    if (!fullName || !phoneNumber || !city || !country) {
-      throw new CustomError(400, "Please provide fullName, phoneNumber, city, and country");
-    }
+    if (!fullName || !phoneNumber) throw new CustomError(400, "Please provide fullName, and phoneNumber ");
 
     // Validation check for full name length
-    if (fullName.length > 50) {
-      throw new CustomError(400, "Invalid full name length. It must be at most 50 characters.");
-    }
+    if (fullName.length > 50) throw new CustomError(400, "Invalid full name length. It must be at most 50 characters.");
 
     // Validation checks for phone number format and length
     if (phoneNumber) {
-      if (!/^\d+$/.test(phoneNumber)) {
-        throw new CustomError(400, "Invalid phone number format. It must contain only numeric characters.");
-      }
+      if (!/^\d+$/.test(phoneNumber)) throw new CustomError(400, "Invalid phone number format. It must contain only numeric characters.");
 
-      if (phoneNumber.length < 10 || phoneNumber.length > 12) {
-        throw new CustomError(400, "Invalid phone number length. It must be between 10 and 12 characters.");
-      }
+      if (phoneNumber.length < 10 || phoneNumber.length > 12) throw new CustomError(400, "Invalid phone number length. It must be between 10 and 12 characters.");
     }
 
     // Handle file upload if a new profile picture is provided

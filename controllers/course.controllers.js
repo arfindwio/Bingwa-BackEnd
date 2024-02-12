@@ -1,17 +1,21 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const path = require("path");
 
 const catchAsync = require("../utils/catchAsync");
 const { CustomError } = require("../utils/errorHandler");
 const { getPagination } = require("../utils/getPagination");
 const { formattedDate } = require("../utils/formattedDate");
+const imagekit = require("../libs/imagekit");
 
 module.exports = {
   createCourse: catchAsync(async (req, res, next) => {
     const { price, isPremium, categoryId, promotionId, averageRating, totalDuration, createdAt, updatedAt } = req.body;
+    const file = req.file;
+    let imageURL;
 
-    if (isPremium !== undefined || averageRating !== undefined || createdAt !== undefined || updatedAt !== undefined || totalDuration !== undefined)
-      throw new CustomError(400, "isPremium, averageRating, totalDuration, createdAt, or updateAt cannot be provided during course creation");
+    if (isPremium !== undefined || averageRating !== undefined || totalDuration !== undefined || !file || createdAt !== undefined || updatedAt !== undefined)
+      throw new CustomError(400, "isPremium, averageRating, totalDuration, courseImg, createdAt, or updateAt cannot be provided during course creation");
 
     // Calculate isPremium based on price
     const updatedIsPremium = price > 0 ? true : false;
@@ -37,11 +41,24 @@ module.exports = {
 
     const finalPromotionId = updatedIsPremium ? promotionId : null;
 
+    if (file) {
+      const strFile = file.buffer.toString("base64");
+
+      const { url } = await imagekit.upload({
+        fileName: Date.now() + path.extname(req.file.originalname),
+        file: strFile,
+      });
+
+      imageURL = url;
+    }
+
     // Create a new course using Prisma
     let newCourse = await prisma.course.create({
       data: {
         ...req.body,
         isPremium: updatedIsPremium,
+        courseImg: imageURL,
+        promotionId: finalPromotionId,
         createdAt: formattedDate(new Date()),
         updatedAt: formattedDate(new Date()),
       },
@@ -58,6 +75,8 @@ module.exports = {
     const { idCourse } = req.params;
 
     const { price, isPremium, categoryId, promotionId, averageRating, totalDuration, createdAt, updatedAt } = req.body;
+    const file = req.file;
+    let imageURL;
 
     // Check if the course to be updated exists
     const course = await prisma.course.findUnique({
@@ -85,7 +104,7 @@ module.exports = {
       throw new CustomError(404, "Category not found");
     }
 
-    if (promotionId !== null) {
+    if (promotionId !== null && promotionId !== "null") {
       const promotion = await prisma.promotion.findUnique({
         where: { id: Number(promotionId) },
       });
@@ -94,7 +113,18 @@ module.exports = {
     }
 
     // Set promotionId to null if isPremium is true
-    const finalPromotionId = updatedIsPremium ? promotionId : null;
+    const finalPromotionId = updatedIsPremium ? null : promotionId;
+
+    if (file) {
+      const strFile = file.buffer.toString("base64");
+
+      const { url } = await imagekit.upload({
+        fileName: Date.now() + path.extname(req.file.originalname),
+        file: strFile,
+      });
+
+      imageURL = url;
+    }
 
     // Update the course using Prisma
     let editedCourse = await prisma.course.update({
@@ -104,6 +134,7 @@ module.exports = {
       data: {
         ...req.body,
         isPremium: updatedIsPremium,
+        courseImg: imageURL,
         promotionId: finalPromotionId,
         updatedAt: formattedDate(new Date()),
       },
@@ -232,10 +263,10 @@ module.exports = {
       if (f) {
         coursesQuery.orderBy = [];
         if (f.includes("newest")) {
-          coursesQuery.orderBy.push({ createdAt: "desc" });
+          coursesQuery.orderBy.push({ createdAt: "asc" });
         }
         if (f.includes("populer")) {
-          coursesQuery.orderBy.push({ averageRating: "desc" });
+          coursesQuery.orderBy.push({ enrollment: { _count: "desc" } });
         }
         if (f.includes("promo")) {
           coursesQuery.where.promotionId = { not: null };
