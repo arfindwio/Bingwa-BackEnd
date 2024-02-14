@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["orderByRelation"]
   // binaryTargets = ["native", "rhel-openssl-1.0.x"]
 }
 
@@ -22,6 +23,8 @@ model User {
   role               String         @default("user")
   resetPasswordToken String?
   googleId           String?
+  createdAt          String
+  updatedAt          String
   tracking           Tracking[]
   userProfile        UserProfile?
   notification       Notification[]
@@ -36,6 +39,8 @@ model UserProfile {
   phoneNumber    String? @unique
   city           String?
   country        String?
+  createdAt      String
+  updatedAt      String
   userId         Int     @unique
   user           User    @relation(fields: [userId], references: [id])
 }
@@ -44,6 +49,8 @@ model Category {
   id           Int      @id @default(autoincrement())
   categoryName String   @unique
   categoryImg  String?
+  createdAt    String
+  updatedAt    String
   course       Course[]
 }
 
@@ -76,10 +83,10 @@ model Course {
 model Chapter {
   id        Int      @id @default(autoincrement())
   name      String
-  createdAt String
-  updatedAt String
   duration  Int
   courseId  Int
+  createdAt String
+  updatedAt String
   course    Course   @relation(fields: [courseId], references: [id])
   lesson    Lesson[]
 }
@@ -100,6 +107,8 @@ model Promotion {
   discount  Decimal
   startDate String
   endDate   String
+  createdAt String
+  updatedAt String
   course    Course[]
 }
 
@@ -108,8 +117,9 @@ model Notification {
   title     String
   message   String
   isRead    Boolean @default(false)
-  createdAt String
   userId    Int
+  createdAt String
+  updatedAt String
   user      User    @relation(fields: [userId], references: [id])
 }
 
@@ -117,8 +127,9 @@ model Enrollment {
   id               Int     @id @default(autoincrement())
   progress         Decimal @default(0)
   preparationCheck Boolean @default(false)
-  createdAt        String
   userId           Int?
+  createdAt        String
+  updatedAt        String
   user             User?   @relation(fields: [userId], references: [id])
   courseId         Int?
   course           Course? @relation(fields: [courseId], references: [id])
@@ -155,6 +166,7 @@ model Review {
   userRating   Int
   userComment  String?
   createdAt    String
+  updatedAt    String
   enrollmentId Int        @unique
   enrollment   Enrollment @relation(fields: [enrollmentId], references: [id])
 }

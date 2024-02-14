@@ -87,6 +87,7 @@ module.exports = {
             },
             data: {
               progress: updatedProgress,
+              updatedAt: formattedDate(new Date()),
             },
           });
 
@@ -116,6 +117,7 @@ module.exports = {
                     message: "You haven't updated your progress in the last 3 days. Please continue learning.",
                     userId: Number(enrollment.userId),
                     createdAt: formattedDate(new Date()),
+                    updatedAt: formattedDate(new Date()),
                   },
                 });
               }

@@ -20,7 +20,13 @@ const createPromotion = catchAsync(async (req, res, next) => {
 
     // Create a new promotion record in the database
     const newPromotion = await prisma.promotion.create({
-      data: { discount, startDate: formattedStartDate, endDate: formattedEndDate },
+      data: {
+        discount,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        createdAt: formattedDate(new Date()),
+        updatedAt: formattedDate(new Date()),
+      },
     });
 
     // Retrieve all users from the database
@@ -35,6 +41,7 @@ const createPromotion = catchAsync(async (req, res, next) => {
             message: `Diskon ${discount * 100}% berlaku dari ${formattedStartDate} sampai ${formattedEndDate}`,
             userId: Number(user.id),
             createdAt: formattedDate(new Date()),
+            updatedAt: formattedDate(new Date()),
           },
           include: {
             user: {
@@ -152,7 +159,12 @@ const editPromotionById = catchAsync(async (req, res, next) => {
     // Update the promotion details in the database
     const updatedPromotion = await prisma.promotion.update({
       where: { id: Number(promotionId) },
-      data: { discount, startDate: formattedStartDate, endDate: formattedEndDate },
+      data: {
+        discount,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        updatedAt: formattedDate(new Date()),
+      },
     });
 
     res.status(200).json({

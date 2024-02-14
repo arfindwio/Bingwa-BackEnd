@@ -106,6 +106,7 @@ module.exports = {
           userId: Number(req.user.id),
           courseId: Number(idCourse),
           createdAt: formattedDate(new Date()),
+          updatedAt: formattedDate(new Date()),
         },
       });
 
@@ -115,6 +116,7 @@ module.exports = {
           message: "You have successfully enrolled in the course",
           userId: Number(req.user.id),
           createdAt: formattedDate(new Date()),
+          updatedAt: formattedDate(new Date()),
         },
       });
 
@@ -128,10 +130,9 @@ module.exports = {
 
       await Promise.all(
         lessons.map(async (lesson) => {
-          return prisma.tracking.create({
+          return await prisma.tracking.create({
             data: {
               userId: Number(req.user.id),
-              courseId: Number(idCourse),
               lessonId: lesson.id,
               status: false,
               createdAt: formattedDate(new Date()),
@@ -552,6 +553,7 @@ module.exports = {
           userId: Number(req.user.id),
           courseId: Number(course.id),
           createdAt: formattedDate(new Date()),
+          updatedAt: formattedDate(new Date()),
         },
       });
 
@@ -561,6 +563,7 @@ module.exports = {
           message: "You have successfully enrolled in the course",
           userId: Number(req.user.id),
           createdAt: formattedDate(new Date()),
+          updatedAt: formattedDate(new Date()),
         },
       });
 
@@ -575,21 +578,13 @@ module.exports = {
 
       await Promise.all(
         lessons.map(async (lesson) => {
-          return prisma.tracking.create({
+          return await prisma.tracking.create({
             data: {
               userId: Number(req.user.id),
-              lessonId: lesson.id,
-              courseId: Number(course.id),
+              lessonId: Number(lesson.id),
               status: false,
               createdAt: formattedDate(new Date()),
               updatedAt: formattedDate(new Date()),
-            },
-            include: {
-              lesson: {
-                select: {
-                  lessonName: true,
-                },
-              },
             },
           });
         })

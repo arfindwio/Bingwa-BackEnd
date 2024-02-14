@@ -65,6 +65,8 @@ module.exports = {
           password: encryptedPassword,
           otp,
           otpCreatedAt,
+          createdAt: formattedDate(new Date()),
+          updatedAt: formattedDate(new Date()),
         },
       });
 
@@ -73,6 +75,8 @@ module.exports = {
           fullName,
           phoneNumber,
           userId: newUser.id,
+          createdAt: formattedDate(new Date()),
+          updatedAt: formattedDate(new Date()),
         },
       });
 
@@ -152,7 +156,7 @@ module.exports = {
       // Update user's verification status
       let updateUser = await prisma.user.update({
         where: { email },
-        data: { isVerified: true },
+        data: { isVerified: true, updatedAt: formattedDate(new Date()) },
       });
 
       res.status(200).json({
@@ -188,7 +192,7 @@ module.exports = {
       // Update user's OTP and OTP creation timestamp
       const updateOtp = await prisma.user.update({
         where: { email, id: Number(user.id) },
-        data: { otp, otpCreatedAt },
+        data: { otp, otpCreatedAt, updatedAt: formattedDate(new Date()) },
       });
 
       res.status(200).json({
@@ -268,7 +272,7 @@ module.exports = {
 
         let updateUser = await prisma.user.update({
           where: { email: decoded.email },
-          data: { password: encryptedPassword, resetPasswordToken: token },
+          data: { password: encryptedPassword, resetPasswordToken: token, updatedAt: formattedDate(new Date()) },
         });
 
         // Create a notification for the user
@@ -278,6 +282,7 @@ module.exports = {
             message: "Password successfully changed!",
             userId: updateUser.id,
             createdAt: formattedDate(new Date()),
+            updatedAt: formattedDate(new Date()),
           },
         });
 
@@ -341,7 +346,7 @@ module.exports = {
     // Update user's password in the database
     let updateUser = await prisma.user.update({
       where: { id: Number(req.user.id) },
-      data: { password: encryptedNewPassword },
+      data: { password: encryptedNewPassword, updatedAt: formattedDate(new Date()) },
     });
 
     // Create a notification for the user
@@ -351,6 +356,7 @@ module.exports = {
         message: "Password successfully changed!",
         userId: req.user.id,
         createdAt: formattedDate(new Date()),
+        updatedAt: formattedDate(new Date()),
       },
     });
 
