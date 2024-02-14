@@ -3324,7 +3324,7 @@ components:
                 example: 250000
               level:
                 type: string
-                example: "Begginer Level"
+                example: "Beginner Level"
               aboutCourse:
                 type: string
                 example: "Design system adalah kumpulan komponen design, code, ataupun dokumentasi yang dapat digunakan sebagai panduan utama yang memunginkan designer serta developer memiliki lebih banyak kontrol atas berbagai platform."

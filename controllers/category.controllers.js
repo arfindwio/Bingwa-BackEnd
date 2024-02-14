@@ -7,6 +7,7 @@ const catchAsync = require("../utils/catchAsync");
 const { getPagination } = require("../utils/getPagination");
 const { CustomError } = require("../utils/errorHandler");
 const imagekit = require("../libs/imagekit");
+const { formattedDate } = require("../utils/formattedDate");
 
 module.exports = {
   createCategory: catchAsync(async (req, res, next) => {
@@ -32,6 +33,8 @@ module.exports = {
         data: {
           categoryName,
           categoryImg: imageURL,
+          createdAt: formattedDate(new Date()),
+          updatedAt: formattedDate(new Date()),
         },
       });
 
@@ -78,7 +81,7 @@ module.exports = {
       const file = req.file;
       let imageURL;
 
-      if (!categoryName) throw new CustomError(400, "Please provide categoryName and categoryImg");
+      if (!categoryName) throw new CustomError(400, "Please provide categoryName");
 
       if (file) {
         const strFile = file.buffer.toString("base64");
@@ -98,6 +101,7 @@ module.exports = {
         data: {
           categoryName,
           categoryImg: imageURL,
+          updatedAt: formattedDate(new Date()),
         },
       });
 

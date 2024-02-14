@@ -50,6 +50,7 @@ module.exports = {
               message,
               userId: user.id,
               createdAt: formattedDate(new Date()),
+              updatedAt: formattedDate(new Date()),
             },
             include: {
               user: {
@@ -83,6 +84,7 @@ module.exports = {
         where: { userId: Number(req.user.id) },
         data: {
           isRead: true,
+          updatedAt: formattedDate(new Date()),
         },
       });
 

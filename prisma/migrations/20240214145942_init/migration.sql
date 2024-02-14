@@ -9,6 +9,8 @@ CREATE TABLE "User" (
     "role" TEXT NOT NULL DEFAULT 'user',
     "resetPasswordToken" TEXT,
     "googleId" TEXT,
+    "createdAt" TEXT NOT NULL,
+    "updatedAt" TEXT NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -21,6 +23,8 @@ CREATE TABLE "UserProfile" (
     "phoneNumber" TEXT,
     "city" TEXT,
     "country" TEXT,
+    "createdAt" TEXT NOT NULL,
+    "updatedAt" TEXT NOT NULL,
     "userId" INTEGER NOT NULL,
 
     CONSTRAINT "UserProfile_pkey" PRIMARY KEY ("id")
@@ -31,6 +35,8 @@ CREATE TABLE "Category" (
     "id" SERIAL NOT NULL,
     "categoryName" TEXT NOT NULL,
     "categoryImg" TEXT,
+    "createdAt" TEXT NOT NULL,
+    "updatedAt" TEXT NOT NULL,
 
     CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
 );
@@ -63,10 +69,10 @@ CREATE TABLE "Course" (
 CREATE TABLE "Chapter" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "createdAt" TEXT NOT NULL,
-    "updatedAt" TEXT NOT NULL,
     "duration" INTEGER NOT NULL,
     "courseId" INTEGER NOT NULL,
+    "createdAt" TEXT NOT NULL,
+    "updatedAt" TEXT NOT NULL,
 
     CONSTRAINT "Chapter_pkey" PRIMARY KEY ("id")
 );
@@ -89,6 +95,8 @@ CREATE TABLE "Promotion" (
     "discount" DECIMAL(65,30) NOT NULL,
     "startDate" TEXT NOT NULL,
     "endDate" TEXT NOT NULL,
+    "createdAt" TEXT NOT NULL,
+    "updatedAt" TEXT NOT NULL,
 
     CONSTRAINT "Promotion_pkey" PRIMARY KEY ("id")
 );
@@ -99,8 +107,9 @@ CREATE TABLE "Notification" (
     "title" TEXT NOT NULL,
     "message" TEXT NOT NULL,
     "isRead" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" TEXT NOT NULL,
     "userId" INTEGER NOT NULL,
+    "createdAt" TEXT NOT NULL,
+    "updatedAt" TEXT NOT NULL,
 
     CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
 );
@@ -110,8 +119,9 @@ CREATE TABLE "Enrollment" (
     "id" SERIAL NOT NULL,
     "progress" DECIMAL(65,30) NOT NULL DEFAULT 0,
     "preparationCheck" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" TEXT NOT NULL,
     "userId" INTEGER,
+    "createdAt" TEXT NOT NULL,
+    "updatedAt" TEXT NOT NULL,
     "courseId" INTEGER,
 
     CONSTRAINT "Enrollment_pkey" PRIMARY KEY ("id")
@@ -150,6 +160,7 @@ CREATE TABLE "Review" (
     "userRating" INTEGER NOT NULL,
     "userComment" TEXT,
     "createdAt" TEXT NOT NULL,
+    "updatedAt" TEXT NOT NULL,
     "enrollmentId" INTEGER NOT NULL,
 
     CONSTRAINT "Review_pkey" PRIMARY KEY ("id")

@@ -5,6 +5,7 @@ const path = require("path");
 const catchAsync = require("../utils/catchAsync");
 const { CustomError } = require("../utils/errorHandler");
 const imagekit = require("../libs/imagekit");
+const { formattedDate } = require("../utils/formattedDate");
 
 module.exports = {
   // Controller to update user profile information
@@ -43,7 +44,7 @@ module.exports = {
       where: {
         userId: Number(req.user.id),
       },
-      data: { profilePicture: imageURL, fullName, phoneNumber, city, country },
+      data: { profilePicture: imageURL, fullName, phoneNumber, city, country, updatedAt: formattedDate(new Date()) },
     });
 
     res.status(200).json({

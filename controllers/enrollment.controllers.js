@@ -173,6 +173,7 @@ module.exports = {
           userId: Number(req.user.id),
           courseId: Number(courseId),
           createdAt: formattedDate(new Date()),
+          updatedAt: formattedDate(new Date()),
         },
       });
 
@@ -188,7 +189,7 @@ module.exports = {
       // Create tracking records for each lesson to monitor user progress
       await Promise.all(
         lessons.map(async (lesson) => {
-          return prisma.tracking.create({
+          return await prisma.tracking.create({
             data: {
               userId: Number(req.user.id),
               lessonId: lesson.id,
@@ -213,6 +214,7 @@ module.exports = {
           message: "You have successfully enrolled in the course",
           userId: Number(req.user.id),
           createdAt: formattedDate(new Date()),
+          updatedAt: formattedDate(new Date()),
         },
       });
 
@@ -229,6 +231,7 @@ module.exports = {
               message: "You have incomplete lessons. Please continue your learning.",
               userId: Number(req.user.id),
               createdAt: formattedDate(new Date()),
+              updatedAt: formattedDate(new Date()),
             },
           });
         }
@@ -278,7 +281,10 @@ module.exports = {
           courseId: Number(course.id),
           userId: Number(req.user.id),
         },
-        data: { preparationCheck: true },
+        data: {
+          preparationCheck: true,
+          updatedAt: formattedDate(new Date()),
+        },
       });
 
       res.status(201).json({
