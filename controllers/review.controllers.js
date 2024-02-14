@@ -36,7 +36,13 @@ module.exports = {
 
       // Create a new review record in the database
       let newReview = await prisma.review.create({
-        data: { userRating, userComment, enrollmentId: enrollment.id, createdAt: formattedDate(new Date()) },
+        data: {
+          userRating,
+          userComment,
+          enrollmentId: enrollment.id,
+          createdAt: formattedDate(new Date()),
+          updatedAt: formattedDate(new Date()),
+        },
       });
 
       // Retrieve all reviews for the course

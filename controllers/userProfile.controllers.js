@@ -5,6 +5,7 @@ const path = require("path");
 const catchAsync = require("../utils/catchAsync");
 const { CustomError } = require("../utils/errorHandler");
 const imagekit = require("../libs/imagekit");
+const { formattedDate } = require("../utils/formattedDate");
 
 module.exports = {
   // Controller to update user profile information
@@ -14,24 +15,16 @@ module.exports = {
     let imageURL;
 
     // Validation checks for mandatory fields
-    if (!fullName || !phoneNumber || !city || !country) {
-      throw new CustomError(400, "Please provide fullName, phoneNumber, city, and country");
-    }
+    if (!fullName || !phoneNumber) throw new CustomError(400, "Please provide fullName, and phoneNumber ");
 
     // Validation check for full name length
-    if (fullName.length > 50) {
-      throw new CustomError(400, "Invalid full name length. It must be at most 50 characters.");
-    }
+    if (fullName.length > 50) throw new CustomError(400, "Invalid full name length. It must be at most 50 characters.");
 
     // Validation checks for phone number format and length
     if (phoneNumber) {
-      if (!/^\d+$/.test(phoneNumber)) {
-        throw new CustomError(400, "Invalid phone number format. It must contain only numeric characters.");
-      }
+      if (!/^\d+$/.test(phoneNumber)) throw new CustomError(400, "Invalid phone number format. It must contain only numeric characters.");
 
-      if (phoneNumber.length < 10 || phoneNumber.length > 12) {
-        throw new CustomError(400, "Invalid phone number length. It must be between 10 and 12 characters.");
-      }
+      if (phoneNumber.length < 10 || phoneNumber.length > 12) throw new CustomError(400, "Invalid phone number length. It must be between 10 and 12 characters.");
     }
 
     // Handle file upload if a new profile picture is provided
@@ -51,7 +44,7 @@ module.exports = {
       where: {
         userId: Number(req.user.id),
       },
-      data: { profilePicture: imageURL, fullName, phoneNumber, city, country },
+      data: { profilePicture: imageURL, fullName, phoneNumber, city, country, updatedAt: formattedDate(new Date()) },
     });
 
     res.status(200).json({

@@ -1,21 +1,40 @@
 // controllers/category.controllers.js
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const path = require("path");
 
 const catchAsync = require("../utils/catchAsync");
+const { getPagination } = require("../utils/getPagination");
 const { CustomError } = require("../utils/errorHandler");
+const imagekit = require("../libs/imagekit");
+const { formattedDate } = require("../utils/formattedDate");
 
 module.exports = {
   createCategory: catchAsync(async (req, res, next) => {
     try {
-      const { categoryName, categoryImg } = req.body;
+      const { categoryName } = req.body;
+      const file = req.file;
+      let imageURL;
 
-      if (!categoryName || !categoryImg) throw new CustomError(400, "Please provide categoryName and categoryImg");
+      if (!categoryName || !file) throw new CustomError(400, "Please provide categoryName and categoryImg");
+
+      if (file) {
+        const strFile = file.buffer.toString("base64");
+
+        const { url } = await imagekit.upload({
+          fileName: Date.now() + path.extname(req.file.originalname),
+          file: strFile,
+        });
+
+        imageURL = url;
+      }
 
       let newCategory = await prisma.category.create({
         data: {
           categoryName,
-          categoryImg,
+          categoryImg: imageURL,
+          createdAt: formattedDate(new Date()),
+          updatedAt: formattedDate(new Date()),
         },
       });
 
@@ -31,16 +50,24 @@ module.exports = {
 
   showCategory: catchAsync(async (req, res, next) => {
     try {
-      const { search } = req.query;
+      const { search, page = 1, limit = 10 } = req.query;
 
       const categories = await prisma.category.findMany({
+        skip: (Number(page) - 1) * Number(limit),
+        take: Number(limit),
         where: search ? { categoryName: { contains: search, mode: "insensitive" } } : {},
       });
+
+      const totalCategories = await prisma.payment.count({
+        where: search ? { categoryName: { contains: search, mode: "insensitive" } } : {},
+      });
+
+      const pagination = getPagination(req, totalCategories, Number(page), Number(limit));
 
       res.status(200).json({
         status: true,
         message: "show all category successful",
-        data: { categories },
+        data: { pagination, categories },
       });
     } catch (err) {
       next(err);
@@ -50,9 +77,22 @@ module.exports = {
   editCategory: catchAsync(async (req, res, next) => {
     try {
       const { idCategory } = req.params;
-      const { categoryName, categoryImg } = req.body;
+      const { categoryName } = req.body;
+      const file = req.file;
+      let imageURL;
 
-      if (!categoryName || !categoryImg) throw new CustomError(400, "Please provide categoryName and categoryImg");
+      if (!categoryName) throw new CustomError(400, "Please provide categoryName");
+
+      if (file) {
+        const strFile = file.buffer.toString("base64");
+
+        const { url } = await imagekit.upload({
+          fileName: Date.now() + path.extname(req.file.originalname),
+          file: strFile,
+        });
+
+        imageURL = url;
+      }
 
       let editedCategory = await prisma.category.update({
         where: {
@@ -60,7 +100,8 @@ module.exports = {
         },
         data: {
           categoryName,
-          categoryImg,
+          categoryImg: imageURL,
+          updatedAt: formattedDate(new Date()),
         },
       });
 

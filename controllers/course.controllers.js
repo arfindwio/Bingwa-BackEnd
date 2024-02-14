@@ -1,122 +1,187 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const path = require("path");
 
 const catchAsync = require("../utils/catchAsync");
 const { CustomError } = require("../utils/errorHandler");
 const { getPagination } = require("../utils/getPagination");
 const { formattedDate } = require("../utils/formattedDate");
+const imagekit = require("../libs/imagekit");
 
 module.exports = {
   createCourse: catchAsync(async (req, res, next) => {
-    const { price, isPremium, categoryId, promotionId, averageRating, totalDuration, createdAt, updatedAt } = req.body;
+    try {
+      const { price, isPremium, categoryId, promotionId, averageRating, totalDuration, createdAt, updatedAt } = req.body;
+      const file = req.file;
+      let imageURL;
 
-    if (isPremium !== undefined || averageRating !== undefined || createdAt !== undefined || updatedAt !== undefined || totalDuration !== undefined)
-      throw new CustomError(400, "isPremium, averageRating, totalDuration, createdAt, or updateAt cannot be provided during course creation");
+      if (isPremium !== undefined || averageRating !== undefined || totalDuration !== undefined || !file || createdAt !== undefined || updatedAt !== undefined)
+        throw new CustomError(400, "isPremium, averageRating, totalDuration, courseImg, createdAt, or updatedAt cannot be provided during course creation");
 
-    // Calculate isPremium based on price
-    const updatedIsPremium = price > 0 ? true : false;
+      // Calculate isPremium based on price
+      const updatedIsPremium = Number(price) > 0 ? true : false;
 
-    // Fetch category information
-    let category = await prisma.category.findUnique({
-      where: { id: Number(categoryId) },
-    });
-
-    // Handle if the category is not found
-    if (!category) {
-      throw new CustomError(404, "Category not found");
-    }
-
-    // Handle if the promotion is not found
-    if (promotionId !== null) {
-      const promotion = await prisma.promotion.findUnique({
-        where: { id: Number(promotionId) },
+      // Fetch category information
+      const category = await prisma.category.findUnique({
+        where: { id: Number(categoryId) },
       });
 
-      if (!promotion) throw new CustomError(404, "Promotion not found");
+      // Handle if the category is not found
+      if (!category) {
+        throw new CustomError(404, "Category not found");
+      }
+
+      // Handle if the promotion is not found
+      if (promotionId !== null && promotionId !== "null" && promotionId) {
+        const promotion = await prisma.promotion.findUnique({
+          where: { id: Number(promotionId) },
+        });
+
+        if (!promotion) throw new CustomError(404, "Promotion not found");
+      }
+
+      const finalPromotionId = updatedIsPremium ? (!promotionId || promotionId === "null" || promotionId === null ? null : promotionId) : null;
+
+      if (file) {
+        const strFile = file.buffer.toString("base64");
+
+        const { url } = await imagekit.upload({
+          fileName: Date.now() + path.extname(req.file.originalname),
+          file: strFile,
+        });
+
+        imageURL = url;
+      }
+
+      // Create a new course using Prisma
+      const newCourse = await prisma.course.create({
+        data: {
+          ...req.body,
+          price: parseInt(price),
+          isPremium: updatedIsPremium,
+          courseImg: imageURL,
+          promotionId: finalPromotionId,
+          categoryId: Number(categoryId),
+          createdAt: formattedDate(new Date()),
+          updatedAt: formattedDate(new Date()),
+        },
+      });
+
+      res.status(201).json({
+        status: true,
+        message: "create Course successful",
+        data: { newCourse },
+      });
+    } catch (err) {
+      next(err);
     }
-
-    // Validate if isPremium is true, promotionId should not be provided
-    if (updatedIsPremium && promotionId !== undefined) {
-      throw new CustomError(400, "Cannot provide promotionId when isPremium is true");
-    }
-
-    // Create a new course using Prisma
-    let newCourse = await prisma.course.create({
-      data: {
-        ...req.body,
-        isPremium: updatedIsPremium,
-        createdAt: formattedDate(new Date()),
-        updatedAt: formattedDate(new Date()),
-      },
-    });
-
-    res.status(201).json({
-      status: true,
-      message: "create Kelas successful",
-      data: { newCourse },
-    });
   }),
 
   editCourse: catchAsync(async (req, res, next) => {
-    const { idCourse } = req.params;
+    try {
+      const { idCourse } = req.params;
 
-    const { price, isPremium, categoryId, promotionId, averageRating, totalDuration, createdAt, updatedAt } = req.body;
+      const { courseName, level, aboutCourse, targetAudience, learningMaterial, mentor, videoURL, forumURL, price, isPremium, categoryId, promotionId, averageRating, totalDuration, createdAt, updatedAt } = req.body;
+      const file = req.file;
+      let imageURL;
 
-    // Check if the course to be updated exists
-    const course = await prisma.course.findUnique({
-      where: {
-        id: Number(idCourse),
-      },
-    });
-
-    if (!course) throw new CustomError(404, `Course Not Found`);
-
-    // Input validation
-    if (isPremium !== undefined || averageRating !== undefined || totalDuration !== undefined || createdAt !== undefined || updatedAt !== undefined)
-      throw new CustomError(400, "isPremium, averageRating, totalDuration, createdAt, or updateAt cannot be provided during course update");
-
-    // Calculate isPremium based on price
-    const updatedIsPremium = price > 0 ? true : false;
-
-    // Fetch category information
-    let category = await prisma.category.findUnique({
-      where: { id: Number(categoryId) },
-    });
-
-    // Handle if the category is not found
-    if (!category) {
-      throw new CustomError(404, "Category not found");
-    }
-
-    if (promotionId !== null) {
-      const promotion = await prisma.promotion.findUnique({
-        where: { id: Number(promotionId) },
+      // Check if the course to be updated exists
+      const course = await prisma.course.findUnique({
+        where: {
+          id: Number(idCourse),
+        },
       });
 
-      if (!promotion) throw new CustomError(404, "Promotion not found");
+      if (!course) throw new CustomError(404, `Course Not Found`);
+
+      // Input validation
+      if (
+        courseName !== undefined ||
+        level !== undefined ||
+        aboutCourse !== undefined ||
+        targetAudience !== undefined ||
+        learningMaterial !== undefined ||
+        mentor !== undefined ||
+        videoURL !== undefined ||
+        forumURL !== undefined ||
+        price !== undefined ||
+        isPremium !== undefined ||
+        averageRating !== undefined ||
+        totalDuration !== undefined ||
+        createdAt !== undefined ||
+        updatedAt !== undefined
+      )
+        throw new CustomError(
+          400,
+          "courseName, level, aboutCourse, targetAudience, learningMaterial, mentor, videoURL, forumURL, price, isPremium, averageRating, totalDuration, createdAt, or updatedAt cannot be provided during course update"
+        );
+
+      // Calculate isPremium based on price
+      const updatedIsPremium = Number(price) > 0 ? true : false;
+
+      // Fetch category information
+      let category = await prisma.category.findUnique({
+        where: { id: Number(categoryId) },
+      });
+
+      // Handle if the category is not found
+      if (!category) {
+        throw new CustomError(404, "Category not found");
+      }
+
+      // Handle if the promotion is not found
+      if (promotionId !== null && promotionId !== "null" && promotionId) {
+        const promotion = await prisma.promotion.findUnique({
+          where: { id: Number(promotionId) },
+        });
+
+        if (!promotion) throw new CustomError(404, "Promotion not found");
+      }
+
+      const finalPromotionId = updatedIsPremium ? (!promotionId || promotionId === "null" || promotionId === null ? null : promotionId) : null;
+
+      if (file) {
+        const strFile = file.buffer.toString("base64");
+
+        const { url } = await imagekit.upload({
+          fileName: Date.now() + path.extname(req.file.originalname),
+          file: strFile,
+        });
+
+        imageURL = url;
+      }
+
+      // Update the course using Prisma
+      let editedCourse = await prisma.course.update({
+        where: {
+          id: Number(course.id),
+        },
+        data: {
+          courseName,
+          level,
+          aboutCourse,
+          targetAudience,
+          learningMaterial,
+          mentor,
+          videoURL,
+          forumURL,
+          price: parseInt(price),
+          isPremium: updatedIsPremium,
+          courseImg: imageURL,
+          promotionId: finalPromotionId,
+          categoryId: Number(categoryId),
+          updatedAt: formattedDate(new Date()),
+        },
+      });
+
+      res.status(200).json({
+        status: true,
+        message: "Update Course successful",
+        data: { editedCourse },
+      });
+    } catch (err) {
+      next(err);
     }
-
-    // Set promotionId to null if isPremium is true
-    const finalPromotionId = updatedIsPremium ? promotionId : null;
-
-    // Update the course using Prisma
-    let editedCourse = await prisma.course.update({
-      where: {
-        id: Number(idCourse),
-      },
-      data: {
-        ...req.body,
-        isPremium: updatedIsPremium,
-        promotionId: finalPromotionId,
-        updatedAt: formattedDate(new Date()),
-      },
-    });
-
-    res.status(200).json({
-      status: true,
-      message: "Update Kelas successful",
-      data: { editedCourse },
-    });
   }),
 
   deleteCourse: catchAsync(async (req, res, next) => {
@@ -235,10 +300,10 @@ module.exports = {
       if (f) {
         coursesQuery.orderBy = [];
         if (f.includes("newest")) {
-          coursesQuery.orderBy.push({ createdAt: "desc" });
+          coursesQuery.orderBy.push({ createdAt: "asc" });
         }
         if (f.includes("populer")) {
-          coursesQuery.orderBy.push({ averageRating: "desc" });
+          coursesQuery.orderBy.push({ averageRating: "asc" });
         }
         if (f.includes("promo")) {
           coursesQuery.where.promotionId = { not: null };
@@ -284,24 +349,6 @@ module.exports = {
               categoryName: true,
             },
           },
-          _count: {
-            select: {
-              chapter: true,
-              enrollment: {
-                include: {
-                  _count: {
-                    select: {
-                      review: {
-                        select: {
-                          id: true,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
           enrollment: {
             where: {
               review: {
@@ -309,14 +356,7 @@ module.exports = {
               },
             },
             select: {
-              review: {
-                select: {
-                  id: true,
-                  userRating: true,
-                  userComment: true,
-                  createdAt: true,
-                },
-              },
+              review: true,
             },
           },
         },
@@ -329,16 +369,6 @@ module.exports = {
 
       // Generate pagination information
       const pagination = getPagination(req, totalCourses, Number(page), Number(limit));
-
-      // Modify each course object to include additional information and remove unnecessary count object
-      courses = courses.map((val) => {
-        val.modul = val._count.chapter;
-        val.totalReviews = val.enrollment.reduce((sum, enrollment) => {
-          return sum + (enrollment.review ? 1 : 0);
-        }, 0);
-        delete val._count;
-        return val;
-      });
 
       res.status(200).json({
         status: true,
