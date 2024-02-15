@@ -47,6 +47,9 @@ module.exports = {
       data: { profilePicture: imageURL, fullName, phoneNumber, city, country, updatedAt: formattedDate(new Date()) },
     });
 
+    delete newUserProfile.id;
+    delete newUserProfile.userId;
+
     res.status(200).json({
       status: true,
       message: "Profile updated successfully",

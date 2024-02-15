@@ -60,10 +60,13 @@ module.exports = {
         data: { averageRating: newAverageRating },
       });
 
+      delete newReview.id;
+      delete newReview.enrollmentId;
+
       return res.status(200).json({
         status: true,
         message: "Create Review User successfully",
-        data: { newReview, updatedCourse: { averageRating: updatedCourse.averageRating } },
+        data: { newReview },
       });
     } catch (err) {
       next(err);

@@ -237,6 +237,10 @@ module.exports = {
         }
       }, 3 * 24 * 60 * 60 * 1000);
 
+      delete enrollCourse.id;
+      delete enrollCourse.preparationCheck;
+      delete enrollCourse.userId;
+
       res.status(201).json({
         status: true,
         message: "Success to enroll in the course",
@@ -286,6 +290,10 @@ module.exports = {
           updatedAt: formattedDate(new Date()),
         },
       });
+
+      delete updatedEnrollment.id;
+      delete updatedEnrollment.preparationCheck;
+      delete updatedEnrollment.userId;
 
       res.status(201).json({
         status: true,

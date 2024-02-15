@@ -5,8 +5,8 @@ info:
     MOOC (Massive Open Online Course) app is a versatile online learning platform that offers open and extensive access to a diverse range of courses. Users can choose from high-quality courses taught by expert instructors from top educational institutions worldwide. The app provides flexible, affordable, and accessible learning experiences, allowing users to study at their own pace and convenience.
   version: 1.0.0
 servers:
-  - url: http://localhost:8000/api/v1
   - url: http://localhost:3000/api/v1
+  - url: http://localhost:8000/api/v1
   - url: https://bingwa-b11.vercel.app/api/v1
   - url: https://nodejsglove2040.stack-ap2.st4as.com/api/v1
 tags:
@@ -58,33 +58,87 @@ paths:
                         type: object
                         properties:
                           newUser:
-                            $ref: "#/components/schemas/UserModel"
-                          newUserProfile:
                             type: object
                             properties:
-                              id:
-                                type: integer
-                                example: 1
-                              profilePicture:
+                              email:
                                 type: string
-                                example: null
-                              fullName:
+                                example: "budi@mail.com"
+                              password:
                                 type: string
-                                example: "Budi Cahyono"
-                              phoneNumber:
+                                example: "$2b$10$wpqr1W8aUNCN7BZZ3o6sz.meX9rB/aItp5Mw/0q7GaRmJbsU2GGbK"
+                              createdAt:
                                 type: string
-                                example: "08123456789"
-                              city:
+                                example: "15 Februari 2024"
+                              updatedAt:
                                 type: string
-                                example: null
-                              country:
-                                type: string
-                                example: null
-                              userId:
-                                type: integer
-                                example: 1
+                                example: "15 Februari 2024"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
         "409":
-          description: Email already exists
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -121,38 +175,36 @@ paths:
                           user:
                             type: object
                             properties:
-                              id:
-                                type: integer
-                                example: 1
-                              emailOrPhoneNumber:
+                              email:
                                 type: string
                                 example: "budi@mail.com"
                               password:
                                 type: string
                                 example: "$2b$10$wpqr1W8aUNCN7BZZ3o6sz.meX9rB/aItp5Mw/0q7GaRmJbsU2GGbK"
-                              otp:
+                              createdAt:
                                 type: string
-                                example: "012345"
-                              otpCreatedAt:
+                                example: "15 Februari 2024"
+                              updatedAt:
                                 type: string
-                                example: "2023-12-04T03:09:21.254Z"
-                              isVerified:
-                                type: boolean
-                                example: true
-                              role:
-                                type: string
-                                example: "user"
-                              resetPasswordToken:
-                                type: string
-                                example: null
-                              googleId:
-                                type: string
-                                example: null
+                                example: "15 Februari 2024"
                           token:
                             type: string
                             example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjk4Njk0MzI1fQ.mexfgD-aW24iYvoWYWQJWSv7AbJ5EqyIDrHS6iCk-d0"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
         "401":
-          description: invalid email or password!
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -165,7 +217,46 @@ paths:
                     type: string
                     example: "failed"
         "403":
-          description: Account not verified
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -199,38 +290,52 @@ paths:
                       data:
                         type: object
                         properties:
-                          user:
+                          updatedUser:
                             type: object
                             properties:
-                              id:
-                                type: integer
-                                example: 1
                               email:
                                 type: string
                                 example: "budi@mail.com"
                               password:
                                 type: string
                                 example: "$2b$10$wpqr1W8aUNCN7BZZ3o6sz.meX9rB/aItp5Mw/0q7GaRmJbsU2GGbK"
-                              otp:
-                                type: string
-                                example: "012345"
-                              otpCreatedAt:
-                                type: string
-                                example: "2023-12-04T03:09:21.254Z"
                               isVerified:
                                 type: boolean
                                 example: true
-                              role:
+                              createdAt:
                                 type: string
-                                example: "user"
-                              resetPasswordToken:
+                                example: "15 Februari 2024"
+                              updatedAt:
                                 type: string
-                                example: null
-                              googleId:
-                                type: string
-                                example: null
+                                example: "15 Februari 2024"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
         "401":
-          description: Invalid OTP
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -243,7 +348,33 @@ paths:
                     type: string
                     example: "failed"
         "404":
-          description: User not found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -277,8 +408,99 @@ paths:
                       data:
                         type: object
                         properties:
-                          user:
-                            $ref: "#/components/schemas/UserModel"
+                          updateOtp:
+                            type: object
+                            properties:
+                              email:
+                                type: string
+                                example: "budi@mail.com"
+                              password:
+                                type: string
+                                example: "$2b$10$wpqr1W8aUNCN7BZZ3o6sz.meX9rB/aItp5Mw/0q7GaRmJbsU2GGbK"
+                              createdAt:
+                                type: string
+                                example: "15 Februari 2024"
+                              updatedAt:
+                                type: string
+                                example: "15 Februari 2024"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
   /users/forget-password:
     post:
       tags:
@@ -307,8 +529,73 @@ paths:
                           token:
                             type: string
                             example: "$2b$10$wpqr1W8aUNCN7BZZ3o6sz.meX9rB/aItp5Mw/0q7GaRmJbsU2GGbK"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
         "404":
-          description: Email not found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -350,9 +637,22 @@ paths:
                         type: object
                         properties:
                           updatedUser:
-                            $ref: "#/components/schemas/UserModel"
+                            type: object
+                            properties:
+                              email:
+                                type: string
+                                example: "budi@mail.com"
+                              password:
+                                type: string
+                                example: "$2b$10$wpqr1W8aUNCN7BZZ3o6sz.meX9rB/aItp5Mw/0q7GaRmJbsU2GGbK"
+                              createdAt:
+                                type: string
+                                example: "15 Februari 2024"
+                              updatedAt:
+                                type: string
+                                example: "15 Februari 2024"
         "400":
-          description: The password and password confirmation fields must match
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -363,7 +663,72 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "Please ensure that the password and password confirmation match!"
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
   /users/authenticate:
     get:
       tags:
@@ -387,16 +752,108 @@ paths:
                         type: object
                         properties:
                           user:
-                            allOf:
-                              - $ref: "#/components/schemas/UserModel"
-                              - type: object
-                                properties:
-                                  userProfile:
-                                    allOf:
-                                      - $ref: "#/components/schemas/UserProfileModel"
-
+                            type: object
+                            properties:
+                              email:
+                                type: string
+                                example: "budi@mail.com"
+                              password:
+                                type: string
+                                example: "$2b$10$wpqr1W8aUNCN7BZZ3o6sz.meX9rB/aItp5Mw/0q7GaRmJbsU2GGbK"
+                              createdAt:
+                                type: string
+                                example: "15 Februari 2024"
+                              updatedAt:
+                                type: string
+                                example: "15 Februari 2024"
+                          userProfile:
+                            type: object
+                            properties:
+                              profilePicture:
+                                type: string
+                                example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
+                              fullName:
+                                type: string
+                                example: "Budi Cahyono"
+                              city:
+                                type: string
+                                example: "Vancouver"
+                              country:
+                                type: string
+                                example: "Canada"
+                              createdAt:
+                                type: string
+                                example: "15 Februari 2024"
+                              updatedAt:
+                                type: string
+                                example: "15 Februari 2024"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
         "404":
-          description: User not found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -433,9 +890,22 @@ paths:
                         type: object
                         properties:
                           updatedUser:
-                            $ref: "#/components/schemas/UserProfileModel"
+                            type: object
+                            properties:
+                              email:
+                                type: string
+                                example: "budi@mail.com"
+                              password:
+                                type: string
+                                example: "$2b$10$wpqr1W8aUNCN7BZZ3o6sz.meX9rB/aItp5Mw/0q7GaRmJbsU2GGbK"
+                              createdAt:
+                                type: string
+                                example: "15 Februari 2024"
+                              updatedAt:
+                                type: string
+                                example: "15 Februari 2024"
         "400":
-          description: The password and password confirmation fields must match
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -446,9 +916,9 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "Please ensure that the new password and confirmation match!"
+                    example: "failed"
         "401":
-          description: Incorrect old password
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -459,7 +929,59 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "Incorrect old password"
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
   /users/google:
     get:
       tags:
@@ -558,9 +1080,23 @@ paths:
                       data:
                         type: object
                         properties:
-                          user:
-                            allOf:
-                              - $ref: "#/components/schemas/UserModel"
+                          users:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                email:
+                                  type: string
+                                  example: "budi@mail.com"
+                                password:
+                                  type: string
+                                  example: "$2b$10$wpqr1W8aUNCN7BZZ3o6sz.meX9rB/aItp5Mw/0q7GaRmJbsU2GGbK"
+                                createdAt:
+                                  type: string
+                                  example: "15 Februari 2024"
+                                updatedAt:
+                                  type: string
+                                  example: "15 Februari 2024"
   /users/{userId}:
     delete:
       tags:
@@ -604,10 +1140,20 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "Invalid userId"
-                  data:
-                    type: object
-                    example: null
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
         "403":
           description: Forbidden
           content:
@@ -620,10 +1166,7 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "Admins are not allowed to be deleted"
-                  data:
-                    type: object
-                    example: null
+                    example: "failed"
         "404":
           description: Not Found
           content:
@@ -636,10 +1179,33 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "User not found"
-                  data:
-                    type: object
-                    example: null
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
   /user-profiles/update-profile:
     put:
       tags:
@@ -665,7 +1231,104 @@ paths:
                         type: object
                         properties:
                           newUserProfile:
-                            $ref: "#/components/schemas/UserProfileModel"
+                            type: object
+                            properties:
+                              profilePicture:
+                                type: string
+                                example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
+                              fullName:
+                                type: string
+                                example: "Budi Cahyono"
+                              city:
+                                type: string
+                                example: "Vancouver"
+                              country:
+                                type: string
+                                example: "Canada"
+                              createdAt:
+                                type: string
+                                example: "15 Februari 2024"
+                              updatedAt:
+                                type: string
+                                example: "15 Februari 2024"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
   /categories:
     get:
       tags:
@@ -692,6 +1355,9 @@ paths:
                       data:
                         type: object
                         properties:
+                          pagination:
+                            allOf:
+                              - $ref: "#/components/schemas/Pagination"
                           categories:
                             type: array
                             items:
@@ -723,7 +1389,7 @@ paths:
                           newCategory:
                             $ref: "#/components/schemas/CategoryModel"
         "400":
-          description: Bad Request field missing
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -734,10 +1400,72 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "Please provide categoryName, and categoryImg"
-                  data:
-                    type: object
-                    example: null
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
   /categories/{categoryId}:
     put:
       tags:
@@ -772,7 +1500,7 @@ paths:
                           editedCategory:
                             $ref: "#/components/schemas/CategoryModel"
         "400":
-          description: Bad Request field missing
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -783,10 +1511,72 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "Please provide categoryName, and categoryImg"
-                  data:
-                    type: object
-                    example: null
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
     delete:
       tags:
         - Categories
@@ -817,8 +1607,8 @@ paths:
                         properties:
                           deletedCategory:
                             $ref: "#/components/schemas/CategoryModel"
-        "404":
-          description: Category Not Found
+        "400":
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -829,10 +1619,72 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "Category Not Found"
-                  data:
-                    type: object
-                    example: null
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
   /courses:
     get:
       tags:
@@ -846,17 +1698,17 @@ paths:
           description: search for get courses
           schema:
             type: string
-        - name: filter
+        - name: f
           in: query
           description: filter for get courses
           schema:
             type: string
-        - name: category
+        - name: c
           in: query
           description: category for get courses
           schema:
             type: string
-        - name: level
+        - name: l
           in: query
           description: level for get courses
           schema:
@@ -920,12 +1772,6 @@ paths:
                                                   createdAt:
                                                     type: string
                                                     example: "19 Desember 2023"
-                                    modul:
-                                      type: integer
-                                      example: 5
-                                    totalReviews:
-                                      type: integer
-                                      example: 10
     post:
       tags:
         - Courses
@@ -949,7 +1795,33 @@ paths:
                       data:
                         $ref: "#/components/schemas/CourseModel"
         "400":
-          description: bad Request when Create Course
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -963,6 +1835,32 @@ paths:
                     example: "failed"
         "404":
           description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -1053,11 +1951,73 @@ paths:
                                         items:
                                           allOf:
                                             - $ref: "#/components/schemas/ReviewModel"
-                                  modul:
-                                    type: integer
-                                    example: 10
         "400":
-          description: Course Not Found
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -1101,8 +2061,73 @@ paths:
                         properties:
                           editedCourse:
                             $ref: "#/components/schemas/CourseModel"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
         "404":
-          description: Course Not Found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -1144,6 +2169,84 @@ paths:
                         properties:
                           deletedCourse:
                             $ref: "#/components/schemas/CourseModel"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
   /chapters:
     get:
       tags:
@@ -1230,7 +2333,7 @@ paths:
                           newChapter:
                             $ref: "#/components/schemas/ChapterModel"
         "400":
-          description: Bad Request Some Field Missing
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -1241,7 +2344,72 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "Please provide name, courseId, and duration"
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
 
   /chapters/{chapterId}:
     get:
@@ -1290,8 +2458,73 @@ paths:
                                             createdAt:
                                               type: string
                                               example: "19 Desember 2023"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
         "404":
-          description: Chapter Not Found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -1336,7 +2569,7 @@ paths:
                           updatedChapter:
                             $ref: "#/components/schemas/ChapterModel"
         "400":
-          description: Bad Request Some Field Missing
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -1347,9 +2580,61 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "Please provide name, courseId, and duration"
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
         "404":
-          description: Chapter Not Found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -1391,8 +2676,73 @@ paths:
                         properties:
                           deletedChapter:
                             $ref: "#/components/schemas/ChapterModel"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
         "404":
-          description: Chapter Not Found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -1485,7 +2835,7 @@ paths:
                           newLesson:
                             $ref: "#/components/schemas/LessonModel"
         "400":
-          description: Bad Request Some Field Missing
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -1496,9 +2846,35 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "Please provide lessonName, videoURL, and chapterId"
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
         "404":
-          description: Request Field Not Found
+          description: Not Found
           content:
             application/json:
               schema:
@@ -1509,7 +2885,33 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "Chapter not found"
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
   /lessons/{courseId}:
     get:
       tags:
@@ -1546,8 +2948,8 @@ paths:
                                   items:
                                     allOf:
                                       - $ref: "#/components/schemas/LessonModel"
-        "404":
-          description: Request Field Not Found
+        "400":
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -1558,7 +2960,72 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "Chapter not found"
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
   /lessons/{lessonId}:
     put:
       tags:
@@ -1592,8 +3059,73 @@ paths:
                         properties:
                           updatedLesson:
                             $ref: "#/components/schemas/LessonModel"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
         "404":
-          description: Lesson or Chapter Not Found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -1635,8 +3167,73 @@ paths:
                         properties:
                           deletedLesson:
                             $ref: "#/components/schemas/LessonModel"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
         "404":
-          description: Lesson Not Found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -1747,8 +3344,73 @@ paths:
                                                       type: array
                                                       items:
                                                         $ref: "#/components/schemas/LessonModel"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
         "404":
-          description: Enrollment Not Found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -1789,10 +3451,48 @@ paths:
                         type: object
                         properties:
                           enrollCourse:
-                            allOf:
-                              - $ref: "#/components/schemas/EnrollmentModel"
+                            type: object
+                            properties:
+                              progress:
+                                type: string
+                                example: "0"
+                              courseId:
+                                type: integer
+                                example: 1
+                              createdAt:
+                                type: string
+                                example: "15 Februari 2024"
+                              updatedAt:
+                                type: string
+                                example: "15 Februari 2024"
         "400":
-          description: User Already Enroll
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -1805,7 +3505,33 @@ paths:
                     type: string
                     example: "failed"
         "404":
-          description: Enrollment Not Found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -1846,10 +3572,48 @@ paths:
                         type: object
                         properties:
                           updatedEnrollment:
-                            allOf:
-                              - $ref: "#/components/schemas/EnrollmentModel"
+                            type: object
+                            properties:
+                              progress:
+                                type: string
+                                example: "0"
+                              courseId:
+                                type: integer
+                                example: 1
+                              createdAt:
+                                type: string
+                                example: "15 Februari 2024"
+                              updatedAt:
+                                type: string
+                                example: "15 Februari 2024"
         "400":
-          description: Invalid courseId provided
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -1862,7 +3626,33 @@ paths:
                     type: string
                     example: "failed"
         "404":
-          description: Course Not Found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -1914,8 +3704,73 @@ paths:
                                 type: number
                                 format: float
                                 example: 4.7
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
         "404":
-          description: Enrollment Not Found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -1986,7 +3841,7 @@ paths:
                           newPromotion:
                             $ref: "#/components/schemas/PromotionModel"
         "400":
-          description: Bad Request Some Field Missing
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -1997,7 +3852,72 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "All fields must be filled"
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
   /promotions/{promotionId}:
     get:
       tags:
@@ -2031,7 +3951,33 @@ paths:
                             allOf:
                               - $ref: "#/components/schemas/PromotionModel"
         "400":
-          description: Invalid Promotion ID
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -2044,7 +3990,33 @@ paths:
                     type: string
                     example: "failed"
         "404":
-          description: Promotion Not Found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -2089,7 +4061,33 @@ paths:
                           updatedPromotion:
                             $ref: "#/components/schemas/PromotionModel"
         "400":
-          description: Invalid Promotion ID
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -2102,7 +4100,33 @@ paths:
                     type: string
                     example: "failed"
         "404":
-          description: Promotion Not Found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -2145,7 +4169,33 @@ paths:
                           deletedPromotion:
                             $ref: "#/components/schemas/PromotionModel"
         "400":
-          description: Invalid Promotion ID
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -2158,7 +4208,33 @@ paths:
                     type: string
                     example: "failed"
         "404":
-          description: Promotion Not Found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -2195,8 +4271,26 @@ paths:
                           notifications:
                             type: array
                             items:
-                              allOf:
-                                - $ref: "#/components/schemas/NotificationModel"
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  example: 1
+                                title:
+                                  type: string
+                                  example: "Notification"
+                                message:
+                                  type: string
+                                  example: "Password Successfully changed"
+                                isRead:
+                                  type: boolean
+                                  example: true
+                                createdAt:
+                                  type: string
+                                  example: "15 Februari 2024"
+                                updatedAt:
+                                  type: string
+                                  example: "15 Februari 2024"
     post:
       tags:
         - Notifications
@@ -2237,7 +4331,7 @@ paths:
                                               type: string
                                               example: "Budi Cahyono"
         "400":
-          description: Bad Request Some Field Missing
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -2248,7 +4342,72 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "All fields must be filled"
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
   /notifications/markAsRead:
     put:
       tags:
@@ -2341,8 +4500,98 @@ paths:
                         type: object
                         properties:
                           tracking:
-                            allOf:
-                              - $ref: "#/components/schemas/TrackingModel"
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                example: 1
+                              status:
+                                type: boolean
+                                example: true
+                              createdAt:
+                                type: string
+                                example: "15 Februari 2024"
+                              updatedAt:
+                                type: string
+                                example: "15 Februari 2024"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
   /payments:
     get:
       tags:
@@ -2441,9 +4690,6 @@ paths:
                                                 categoryName:
                                                   type: string
                                                   example: "UI/UX Design"
-                                            modul:
-                                              type: integer
-                                              example: 10
   /payments/{courseId}:
     get:
       tags:
@@ -2488,8 +4734,73 @@ paths:
                           amount:
                             type: integer
                             example: 277500
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
         "404":
-          description: Course Not Found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -2534,7 +4845,33 @@ paths:
                           newPayment:
                             $ref: "#/components/schemas/PaymentModel"
         "400":
-          description: Invalid Promotion ID
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -2547,7 +4884,33 @@ paths:
                     type: string
                     example: "failed"
         "404":
-          description: Promotion Not Found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -2653,7 +5016,33 @@ paths:
                                 type: boolean
                                 example: false
         "400":
-          description: Course Free Not Able to Buy
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -2666,7 +5055,33 @@ paths:
                     type: string
                     example: "failed"
         "404":
-          description: Course Not Found
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "failed"
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -2796,7 +5211,13 @@ components:
           example: "UI/UX Design"
         categoryImg:
           type: string
-          example: "https://images.unsplash.com/photo-1600087626120-062700394a01?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
+        createdAt:
+          type: string
+          example: "15 Februari 2024"
+        updatedAt:
+          type: string
+          example: "15 Februari 2024"
     CourseModel:
       title: Course
       type: object
@@ -2816,7 +5237,7 @@ components:
           example: 5
         level:
           type: string
-          example: "Begginer Level"
+          example: "Beginner Level"
         aboutCourse:
           type: string
           example: "Design system adalah kumpulan komponen design, code, ataupun dokumentasi yang dapat digunakan sebagai panduan utama yang memunginkan designer serta developer memiliki lebih banyak kontrol atas berbagai platform."
@@ -2875,132 +5296,6 @@ components:
         courseId:
           type: integer
           example: 1
-    DetailCourseModelEnroll:
-      title: Course
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        courseName:
-          type: string
-          example: "Intro to Basic of User Interaction Design"
-        price:
-          type: integer
-          example: 250000
-        averageRating:
-          type: number
-          format: float
-          example: 5
-        level:
-          type: string
-          example: "Begginer Level"
-        aboutCourse:
-          type: string
-          example: "Design system adalah kumpulan komponen design, code, ataupun dokumentasi yang dapat digunakan sebagai panduan utama yang memunginkan designer serta developer memiliki lebih banyak kontrol atas berbagai platform."
-        targetAudience:
-          type: string
-          example: "Anda yang ingin memahami poin penting design system"
-        learningMaterial:
-          type: string
-          example: "Mempunyai akun Figma atau Install Adobe XD Menggunakan internet minimal kecepatan 2Mbps Belajar di tempat yang nyaman"
-        mentor:
-          type: string
-          example: "Simon Doe"
-        isPremium:
-          type: boolean
-          example: true
-        videoURL:
-          type: string
-          example: "https://youtu.be/ixOd42SEUF0"
-        forumURL:
-          type: string
-          example: "https://web.telegram.org"
-        duration:
-          type: integer
-          example: 120
-        courseImg:
-          type: string
-          example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
-        createdAt:
-          type: string
-          example: "19 Desember 2023"
-        categoryId:
-          type: integer
-          example: 1
-        promotionId:
-          type: integer
-          example: 1
-        modul:
-          type: integer
-          example: 2
-        enrollment:
-          type: object
-          properties:
-            id:
-              type: integer
-              example: 1
-            progress:
-              type: string
-              example: "33.3"
-    CourseModelEnroll:
-      title: Course
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        courseName:
-          type: string
-          example: "Intro to Basic of User Interaction Design"
-        averageRating:
-          type: number
-          format: float
-          example: 5
-        level:
-          type: string
-        mentor:
-          type: string
-          example: "Simon Doe"
-        isPremium:
-          type: boolean
-          example: true
-        videoURL:
-          type: string
-          example: "https://youtu.be/ixOd42SEUF0"
-        forumURL:
-          type: string
-          example: "https://web.telegram.org"
-        duration:
-          type: integer
-          example: 120
-        courseImg:
-          type: string
-          example: "https://ik.imagekit.io/budi123/1628693262177_a8Y3AhxNv.png"
-        category:
-          type: object
-          properties:
-            id:
-              type: integer
-              example: 1
-            categoryName:
-              type: string
-              example: "Web Development"
-        enrollment:
-          type: object
-          properties:
-            id:
-              type: integer
-              example: 1
-            progress:
-              type: string
-              example: "33.3"
-        modul:
-          type: integer
-          example: 2
-        statusEnrol:
-          type: boolean
-          example: true
     LessonModel:
       title: Lesson
       type: object
@@ -3282,7 +5577,7 @@ components:
                 example: 250000
               level:
                 type: string
-                example: "Begginer Level"
+                example: "Beginner Level"
               aboutCourse:
                 type: string
                 example: "Design system adalah kumpulan komponen design, code, ataupun dokumentasi yang dapat digunakan sebagai panduan utama yang memunginkan designer serta developer memiliki lebih banyak kontrol atas berbagai platform."
