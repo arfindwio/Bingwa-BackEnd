@@ -14,6 +14,10 @@ module.exports = {
         where: { userId: Number(req.user.id) },
       });
 
+      delete notifications.map((notification) => {
+        return delete notification.userId;
+      });
+
       res.status(200).json({
         status: true,
         message: "Notifications retrieved successfully",

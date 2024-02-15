@@ -9,7 +9,7 @@ const { generatedOTP } = require("../utils/otpGenerator");
 const nodemailer = require("../utils/nodemailer");
 const { formattedDate } = require("../utils/formattedDate");
 
-const { JWT_SECRET_KEY } = process.env;
+const { JWT_SECRET_KEY, FRONTEND_URL } = process.env;
 
 module.exports = {
   // Controller for user registration
@@ -82,7 +82,15 @@ module.exports = {
 
       // Send email verification OTP
       const html = await nodemailer.getHtml("verify-otp.ejs", { email, otp });
-      await nodemailer.sendEmail(email, "Email Activation", html);
+      nodemailer.sendEmail(email, "Email Activation", html);
+
+      delete newUser.id;
+      delete newUser.otp;
+      delete newUser.otpCreatedAt;
+      delete newUser.role;
+      delete newUser.resetPasswordToken;
+      delete newUser.googleId;
+      delete newUser.isVerified;
 
       res.status(201).json({
         status: true,
@@ -118,7 +126,17 @@ module.exports = {
       if (!user.isVerified) throw new CustomError(403, "Account not verified. Please check your email!");
 
       // Generate JWT token for authentication
-      let token = jwt.sign({ id: user.id }, JWT_SECRET_KEY);
+      let token = jwt.sign({ id: user.id }, JWT_SECRET_KEY, {
+        expiresIn: "6h",
+      });
+
+      delete user.id;
+      delete user.otp;
+      delete user.otpCreatedAt;
+      delete user.isVerified;
+      delete user.role;
+      delete user.resetPasswordToken;
+      delete user.googleId;
 
       return res.status(200).json({
         status: true,
@@ -159,10 +177,17 @@ module.exports = {
         data: { isVerified: true, updatedAt: formattedDate(new Date()) },
       });
 
+      delete updateUser.id;
+      delete updateUser.otp;
+      delete updateUser.otpCreatedAt;
+      delete updateUser.role;
+      delete updateUser.resetPasswordToken;
+      delete updateUser.googleId;
+
       res.status(200).json({
         status: true,
         message: "Activation successful",
-        data: updateUser,
+        data: { updateUser },
       });
     } catch (err) {
       next(err);
@@ -187,7 +212,7 @@ module.exports = {
 
       // Send the new OTP via email
       const html = await nodemailer.getHtml("verify-otp.ejs", { email, otp });
-      await nodemailer.sendEmail(email, "Email Activation", html);
+      nodemailer.sendEmail(email, "Email Activation", html);
 
       // Update user's OTP and OTP creation timestamp
       const updateOtp = await prisma.user.update({
@@ -195,10 +220,18 @@ module.exports = {
         data: { otp, otpCreatedAt, updatedAt: formattedDate(new Date()) },
       });
 
+      delete updateOtp.id;
+      delete updateOtp.otp;
+      delete updateOtp.otpCreatedAt;
+      delete updateOtp.isVerified;
+      delete updateOtp.role;
+      delete updateOtp.resetPasswordToken;
+      delete updateOtp.googleId;
+
       res.status(200).json({
         status: true,
         message: "Resend OTP successful",
-        data: updateOtp,
+        data: { updateOtp },
       });
     } catch (err) {
       next(err);
@@ -227,8 +260,9 @@ module.exports = {
       const html = await nodemailer.getHtml("email-password-reset.ejs", {
         email,
         token,
+        FRONTEND_URL,
       });
-      await nodemailer.sendEmail(email, "Reset Password", html);
+      nodemailer.sendEmail(email, "Reset Password", html);
 
       res.status(200).json({
         status: true,
@@ -286,6 +320,14 @@ module.exports = {
           },
         });
 
+        delete updateUser.id;
+        delete updateUser.otp;
+        delete updateUser.otpCreatedAt;
+        delete updateUser.isVerified;
+        delete updateUser.role;
+        delete updateUser.resetPasswordToken;
+        delete updateUser.googleId;
+
         res.status(200).json({
           status: true,
           message: "Your password has been updated successfully!",
@@ -311,6 +353,16 @@ module.exports = {
       // Return error if user not found
       if (!user) throw new CustomError(404, "User not found");
 
+      delete user.id;
+      delete user.otp;
+      delete user.otpCreatedAt;
+      delete user.isVerified;
+      delete user.role;
+      delete user.resetPasswordToken;
+      delete user.googleId;
+      delete user.userProfile.id;
+      delete user.userProfile.userId;
+
       return res.status(200).json({
         status: true,
         message: "Authentication successful",
@@ -323,60 +375,74 @@ module.exports = {
 
   // Controller to change the user's password
   changePasswordUser: catchAsync(async (req, res, next) => {
-    const { oldPassword, newPassword, newPasswordConfirmation } = req.body;
+    try {
+      const { oldPassword, newPassword, newPasswordConfirmation } = req.body;
 
-    // Check if required parameters are provided
-    if (!oldPassword || !newPassword || !newPasswordConfirmation) throw new CustomError(400, "Please provide oldPassword, newPassword, and newPasswordConfirmation");
+      // Check if required parameters are provided
+      if (!oldPassword || !newPassword || !newPasswordConfirmation) throw new CustomError(400, "Please provide oldPassword, newPassword, and newPasswordConfirmation");
 
-    // Check if the old password provided matches the user's current password
-    let isOldPasswordCorrect = await bcrypt.compare(oldPassword, req.user.password);
-    if (!isOldPasswordCorrect) throw new CustomError(401, "Incorrect old password");
+      // Check if the old password provided matches the user's current password
+      let isOldPasswordCorrect = await bcrypt.compare(oldPassword, req.user.password);
+      if (!isOldPasswordCorrect) throw new CustomError(401, "Incorrect old password");
 
-    // Validate the format of the new password using a regular expression
-    const passwordValidator = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,12}$/;
+      // Validate the format of the new password using a regular expression
+      const passwordValidator = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,12}$/;
 
-    if (!passwordValidator.test(newPassword)) throw new CustomError(400, "Invalid password format. It must contain at least 1 lowercase, 1 uppercase, 1 digit number, 1 symbol, and be between 8 and 12 characters long.");
+      if (!passwordValidator.test(newPassword)) throw new CustomError(400, "Invalid password format. It must contain at least 1 lowercase, 1 uppercase, 1 digit number, 1 symbol, and be between 8 and 12 characters long.");
 
-    // Check if the new password matches the password confirmation
-    if (newPassword !== newPasswordConfirmation) throw new CustomError(400, "Please ensure that the new password and confirmation match!");
+      // Check if the new password matches the password confirmation
+      if (newPassword !== newPasswordConfirmation) throw new CustomError(400, "Please ensure that the new password and confirmation match!");
 
-    // Hash the new password
-    let encryptedNewPassword = await bcrypt.hash(newPassword, 10);
+      // Hash the new password
+      let encryptedNewPassword = await bcrypt.hash(newPassword, 10);
 
-    // Update user's password in the database
-    let updateUser = await prisma.user.update({
-      where: { id: Number(req.user.id) },
-      data: { password: encryptedNewPassword, updatedAt: formattedDate(new Date()) },
-    });
+      // Update user's password in the database
+      let updateUser = await prisma.user.update({
+        where: { id: Number(req.user.id) },
+        data: { password: encryptedNewPassword, updatedAt: formattedDate(new Date()) },
+      });
 
-    // Create a notification for the user
-    await prisma.notification.create({
-      data: {
-        title: "Notification",
-        message: "Password successfully changed!",
-        userId: req.user.id,
-        createdAt: formattedDate(new Date()),
-        updatedAt: formattedDate(new Date()),
-      },
-    });
+      // Create a notification for the user
+      await prisma.notification.create({
+        data: {
+          title: "Notification",
+          message: "Password successfully changed!",
+          userId: req.user.id,
+          createdAt: formattedDate(new Date()),
+          updatedAt: formattedDate(new Date()),
+        },
+      });
 
-    res.status(200).json({
-      status: true,
-      message: "Your password has been successfully changed",
-      data: { updateUser },
-    });
+      delete updateUser.id;
+      delete updateUser.otp;
+      delete updateUser.otpCreatedAt;
+      delete updateUser.isVerified;
+      delete updateUser.role;
+      delete updateUser.resetPasswordToken;
+      delete updateUser.googleId;
+
+      res.status(200).json({
+        status: true,
+        message: "Your password has been successfully changed",
+        data: { updateUser },
+      });
+    } catch (err) {
+      next(err);
+    }
   }),
 
   // Controller for Google OAuth2 authentication
   googleOauth2: (req, res) => {
     // Generate a JWT token for the authenticated user
-    let token = jwt.sign({ id: req.user.id }, JWT_SECRET_KEY);
+    let token = jwt.sign({ id: req.user.id }, JWT_SECRET_KEY, {
+      expiresIn: "6h",
+    });
 
     const cookieOptions = {
       secure: true,
     };
 
-    res.cookie("authToken", token, cookieOptions).redirect(`http://localhost:3000`);
+    res.cookie("authToken", token, cookieOptions).redirect(FRONTEND_URL);
   },
 
   getAllUsers: catchAsync(async (req, res, next) => {
@@ -398,22 +464,16 @@ module.exports = {
       const userId = req.params.id;
 
       // Validation: Check if the userId is a valid number
-      if (isNaN(userId)) {
-        throw new CustomError(400, "Invalid userId");
-      }
+      if (isNaN(userId)) throw new CustomError(400, "Invalid userId");
 
       const user = await prisma.user.findUnique({
         where: { id: Number(userId) },
       });
 
       // Validation: Check if the user with the given userId exists
-      if (!user) {
-        throw new CustomError(404, "User not found");
-      }
+      if (!user) throw new CustomError(404, "User not found");
 
-      if (user.role === "admin") {
-        throw new CustomError(403, "Admins are not allowed to be deleted");
-      }
+      if (user.role === "admin") throw new CustomError(403, "Admins are not allowed to be deleted");
 
       await prisma.userProfile.delete({
         where: { userId: Number(user.id) },

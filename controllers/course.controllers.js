@@ -96,15 +96,15 @@ module.exports = {
 
       // Input validation
       if (
-        courseName !== undefined ||
-        level !== undefined ||
-        aboutCourse !== undefined ||
-        targetAudience !== undefined ||
-        learningMaterial !== undefined ||
-        mentor !== undefined ||
-        videoURL !== undefined ||
-        forumURL !== undefined ||
-        price !== undefined ||
+        !courseName ||
+        !level ||
+        !aboutCourse ||
+        !targetAudience ||
+        !learningMaterial ||
+        !mentor ||
+        !videoURL ||
+        !forumURL ||
+        !price ||
         isPremium !== undefined ||
         averageRating !== undefined ||
         totalDuration !== undefined ||

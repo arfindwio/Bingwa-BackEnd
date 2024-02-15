@@ -11,7 +11,7 @@ const catchAsync = require("../utils/catchAsync");
 const { CustomError } = require("../utils/errorHandler");
 const { getPagination } = require("../utils/getPagination");
 
-const { PAYMENT_DEV_CLIENT_KEY, PAYMENT_DEV_SERVER_KEY, PAYMENT_PROD_CLIENT_KEY, PAYMENT_PROD_SERVER_KEY } = process.env;
+const { PAYMENT_DEV_CLIENT_KEY, PAYMENT_DEV_SERVER_KEY, PAYMENT_PROD_CLIENT_KEY, PAYMENT_PROD_SERVER_KEY, FRONTEND_URL } = process.env;
 
 // Setting the environment (true for production, false for development)
 const isProduction = false;
@@ -99,7 +99,7 @@ module.exports = {
       const html = await nodemailer.getHtml("transaction-success.ejs", {
         course: course.courseName,
       });
-      await nodemailer.sendEmail(req.user.email, "Email Transaction", html);
+      nodemailer.sendEmail(req.user.email, "Email Transaction", html);
 
       await prisma.enrollment.create({
         data: {
@@ -502,7 +502,7 @@ module.exports = {
         parameter.payment_type = "gopay";
         parameter.gopay = {
           enable_callback: true,
-          callback_url: "localhost:3000/payment-success",
+          callback_url: `${FRONTEND_URL}/payment-success`,
         };
       }
 

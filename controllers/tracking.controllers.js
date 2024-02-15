@@ -121,6 +121,9 @@ module.exports = {
         }, 3 * 24 * 60 * 60 * 1000);
       }
 
+      delete updatedTracking.userId;
+      delete updatedTracking.lessonId;
+
       res.status(200).json({
         status: true,
         message: "Tracking updated successfully",
