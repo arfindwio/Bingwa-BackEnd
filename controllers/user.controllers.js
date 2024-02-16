@@ -81,8 +81,8 @@ module.exports = {
       });
 
       // Send email verification OTP
-      const html = await nodemailer.getHtml("verify-otp.ejs", { email, otp });
-      nodemailer.sendEmail(email, "Email Activation", html);
+      const html = nodemailer.getHtml("verify-otp.ejs", { email, otp });
+      await nodemailer.sendEmail(email, "Email Activation", html);
 
       delete newUser.id;
       delete newUser.otp;
@@ -211,8 +211,8 @@ module.exports = {
       if (!user) throw new CustomError(404, "Email not found");
 
       // Send the new OTP via email
-      const html = await nodemailer.getHtml("verify-otp.ejs", { email, otp });
-      nodemailer.sendEmail(email, "Email Activation", html);
+      const html = nodemailer.getHtml("verify-otp.ejs", { email, otp });
+      await nodemailer.sendEmail(email, "Email Activation", html);
 
       // Update user's OTP and OTP creation timestamp
       const updateOtp = await prisma.user.update({
@@ -257,12 +257,12 @@ module.exports = {
       });
 
       // Send an email with the password reset link
-      const html = await nodemailer.getHtml("email-password-reset.ejs", {
+      const html = nodemailer.getHtml("email-password-reset.ejs", {
         email,
         token,
         FRONTEND_URL,
       });
-      nodemailer.sendEmail(email, "Reset Password", html);
+      await nodemailer.sendEmail(email, "Reset Password", html);
 
       res.status(200).json({
         status: true,
