@@ -81,7 +81,7 @@ module.exports = {
       });
 
       // Send email verification OTP
-      const html = nodemailer.getHtml("verify-otp.ejs", { email, otp });
+      const html = await nodemailer.getHtml("verify-otp.ejs", { email, otp });
       await nodemailer.sendEmail(email, "Email Activation", html);
 
       delete newUser.id;
@@ -211,7 +211,7 @@ module.exports = {
       if (!user) throw new CustomError(404, "Email not found");
 
       // Send the new OTP via email
-      const html = nodemailer.getHtml("verify-otp.ejs", { email, otp });
+      const html = await nodemailer.getHtml("verify-otp.ejs", { email, otp });
       await nodemailer.sendEmail(email, "Email Activation", html);
 
       // Update user's OTP and OTP creation timestamp
@@ -257,7 +257,7 @@ module.exports = {
       });
 
       // Send an email with the password reset link
-      const html = nodemailer.getHtml("email-password-reset.ejs", {
+      const html = await nodemailer.getHtml("email-password-reset.ejs", {
         email,
         token,
         FRONTEND_URL,
