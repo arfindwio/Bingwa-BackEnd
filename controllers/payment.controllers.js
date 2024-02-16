@@ -96,7 +96,7 @@ module.exports = {
         },
       });
 
-      const html = nodemailer.getHtml("transaction-success.ejs", {
+      const html = await nodemailer.getHtml("transaction-success.ejs", {
         course: course.courseName,
       });
       await nodemailer.sendEmail(req.user.email, "Email Transaction", html);
@@ -542,7 +542,7 @@ module.exports = {
       let transaction = await core.charge(parameter);
 
       // Send email notification to the user
-      const html = nodemailer.getHtml("transaction-success.ejs", {
+      const html = await nodemailer.getHtml("transaction-success.ejs", {
         course: course.courseName,
       });
       await nodemailer.sendEmail(user.email, "Email Transaction", html);
