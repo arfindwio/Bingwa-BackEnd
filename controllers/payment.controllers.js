@@ -96,10 +96,10 @@ module.exports = {
         },
       });
 
-      const html = await nodemailer.getHtml("transaction-success.ejs", {
+      const html = nodemailer.getHtml("transaction-success.ejs", {
         course: course.courseName,
       });
-      nodemailer.sendEmail(req.user.email, "Email Transaction", html);
+      await nodemailer.sendEmail(req.user.email, "Email Transaction", html);
 
       await prisma.enrollment.create({
         data: {
@@ -542,10 +542,10 @@ module.exports = {
       let transaction = await core.charge(parameter);
 
       // Send email notification to the user
-      const html = await nodemailer.getHtml("transaction-success.ejs", {
+      const html = nodemailer.getHtml("transaction-success.ejs", {
         course: course.courseName,
       });
-      nodemailer.sendEmail(user.email, "Email Transaction", html);
+      await nodemailer.sendEmail(user.email, "Email Transaction", html);
 
       // Create enrollment record for the user
       await prisma.enrollment.create({

@@ -185,101 +185,109 @@ module.exports = {
   }),
 
   deleteCourse: catchAsync(async (req, res, next) => {
-    const { idCourse } = req.params;
+    try {
+      const { idCourse } = req.params;
 
-    // Check if the course to be updated exists
-    const course = await prisma.course.findUnique({
-      where: {
-        id: Number(idCourse),
-      },
-    });
+      // Check if the course to be updated exists
+      const course = await prisma.course.findUnique({
+        where: {
+          id: Number(idCourse),
+        },
+      });
 
-    if (!course) throw new CustomError(404, `Course Not Found`);
+      if (!course) throw new CustomError(404, `Course Not Found`);
 
-    // Delete the course using Prisma
-    let deletedCourse = await prisma.course.delete({
-      where: {
-        id: Number(course.id),
-      },
-    });
+      // Delete the course using Prisma
+      let deletedCourse = await prisma.course.delete({
+        where: {
+          id: Number(course.id),
+        },
+      });
 
-    res.status(200).json({
-      status: true,
-      message: "delete Kelas successful",
-      data: { deletedCourse },
-    });
+      res.status(200).json({
+        status: true,
+        message: "delete Kelas successful",
+        data: { deletedCourse },
+      });
+    } catch (err) {
+      next(err);
+    }
   }),
 
   detailCourse: catchAsync(async (req, res, next) => {
-    const { idCourse } = req.params;
+    try {
+      const { idCourse } = req.params;
 
-    // Retrieve detailed information about a course using Prisma
-    const course = await prisma.course.findUnique({
-      where: {
-        id: Number(idCourse),
-      },
-      include: {
-        promotion: {
-          select: {
-            discount: true,
-          },
+      // Retrieve detailed information about a course using Prisma
+      const course = await prisma.course.findUnique({
+        where: {
+          id: Number(idCourse),
         },
-        category: {
-          select: {
-            categoryName: true,
+        include: {
+          promotion: {
+            select: {
+              discount: true,
+            },
           },
-        },
-        chapter: {
-          select: {
-            id: true,
-            name: true,
-            duration: true,
-            lesson: {
-              select: {
-                id: true,
-                lessonName: true,
-                videoURL: true,
-                createdAt: true,
+          category: {
+            select: {
+              categoryName: true,
+            },
+          },
+          chapter: {
+            select: {
+              id: true,
+              name: true,
+              duration: true,
+              lesson: {
+                select: {
+                  id: true,
+                  lessonName: true,
+                  videoURL: true,
+                  createdAt: true,
+                },
               },
             },
           },
-        },
-        enrollment: {
-          where: {
-            review: {
-              OR: [{ userComment: null }, { userComment: { not: null } }],
+          enrollment: {
+            where: {
+              review: {
+                OR: [{ userComment: null }, { userComment: { not: null } }],
+              },
             },
-          },
-          select: {
-            review: {
-              select: {
-                id: true,
-                userRating: true,
-                userComment: true,
-                createdAt: true,
+            select: {
+              review: {
+                select: {
+                  id: true,
+                  userRating: true,
+                  userComment: true,
+                  createdAt: true,
+                },
               },
             },
           },
-        },
-        _count: {
-          select: {
-            chapter: true,
+          _count: {
+            select: {
+              chapter: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    if (!course) throw new CustomError(404, `Course Not Found`);
+      if (!course) throw new CustomError(404, `Course Not Found`);
 
-    // Modify object property count to modul
-    course["modul"] = course._count.chapter;
-    delete course["_count"];
+      // Modify object property count to modul
+      course["modul"] = course._count.chapter;
+      delete course["_count"];
 
-    res.status(200).json({
-      status: true,
-      message: `Get Detail Course successful`,
-      data: { course },
-    });
+      res.status(200).json({
+        status: true,
+        message: `Get Detail Course successful`,
+        data: { course },
+      });
+    } catch (err) {
+      next(err);
+    }
   }),
 
   getCourse: catchAsync(async (req, res, next) => {
