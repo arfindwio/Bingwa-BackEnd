@@ -7,7 +7,7 @@ info:
 servers:
   - url: http://localhost:3000/api/v1
   - url: http://localhost:8000/api/v1
-  - url: bingwa-back-end.vercel.app/api-docs/
+  - url: bingwa-back-end.vercel.app/api/v1
 tags:
   - name: Users
     description: Operations about user
