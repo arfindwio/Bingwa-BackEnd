@@ -357,7 +357,6 @@ module.exports = {
       delete user.otp;
       delete user.otpCreatedAt;
       delete user.isVerified;
-      delete user.role;
       delete user.resetPasswordToken;
       delete user.googleId;
       delete user.userProfile.id;
