@@ -40,7 +40,7 @@ module.exports = {
         if (!promotion) throw new CustomError(404, "Promotion not found");
       }
 
-      const finalPromotionId = updatedIsPremium ? (!promotionId || promotionId === "null" || promotionId === null ? null : promotionId) : null;
+      const finalPromotionId = updatedIsPremium ? (!promotionId || promotionId === "null" || promotionId === null ? null : Number(promotionId)) : null;
 
       if (file) {
         const strFile = file.buffer.toString("base64");
@@ -138,7 +138,7 @@ module.exports = {
         if (!promotion) throw new CustomError(404, "Promotion not found");
       }
 
-      const finalPromotionId = updatedIsPremium ? (!promotionId || promotionId === "null" || promotionId === null ? null : promotionId) : null;
+      const finalPromotionId = updatedIsPremium ? (!promotionId || promotionId === "null" || promotionId === null ? null : Number(promotionId)) : null;
 
       if (file) {
         const strFile = file.buffer.toString("base64");
@@ -275,10 +275,6 @@ module.exports = {
       });
 
       if (!course) throw new CustomError(404, `Course Not Found`);
-
-      // Modify object property count to modul
-      course["modul"] = course._count.chapter;
-      delete course["_count"];
 
       res.status(200).json({
         status: true,
