@@ -58,7 +58,7 @@ module.exports = {
         where: search ? { categoryName: { contains: search, mode: "insensitive" } } : {},
       });
 
-      const totalCategories = await prisma.payment.count({
+      const totalCategories = await prisma.category.count({
         where: search ? { categoryName: { contains: search, mode: "insensitive" } } : {},
       });
 
