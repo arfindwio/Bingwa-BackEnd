@@ -437,12 +437,7 @@ module.exports = {
       expiresIn: "6h",
     });
 
-    const cookieOptions = {
-      path: "/",
-      secure: true,
-    };
-
-    res.cookie("googleToken", token, cookieOptions).redirect(FRONTEND_URL);
+    res.redirect(`${FRONTEND_URL}?googleToken=${token}`);
   },
 
   getAllUsers: catchAsync(async (req, res, next) => {
