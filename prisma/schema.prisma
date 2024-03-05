@@ -97,8 +97,8 @@ model Lesson {
   videoURL   String
   createdAt  String
   updatedAt  String
-  chapterId  Int
   tracking   Tracking[]
+  chapterId  Int
   chapter    Chapter    @relation(fields: [chapterId], references: [id])
 }
 

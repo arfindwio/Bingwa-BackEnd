@@ -5624,7 +5624,7 @@ components:
                 example: "Design system adalah kumpulan komponen design, code, ataupun dokumentasi yang dapat digunakan sebagai panduan utama yang memunginkan designer serta developer memiliki lebih banyak kontrol atas berbagai platform."
               targetAudience:
                 type: string
-                example: "Anda yang ingin memahami poin penting design system"
+                example: "You want to understand the key points of a design system"
               learningMaterial:
                 type: string
                 example: "Mempunyai akun Figma atau Install Adobe XD Menggunakan internet minimal kecepatan 2Mbps Belajar di tempat yang nyaman"
