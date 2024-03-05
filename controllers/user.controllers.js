@@ -442,7 +442,7 @@ module.exports = {
       secure: true,
     };
 
-    res.cookie("authToken", token, cookieOptions).redirect(FRONTEND_URL);
+    res.cookie("googleToken", token, cookieOptions).redirect(FRONTEND_URL);
   },
 
   getAllUsers: catchAsync(async (req, res, next) => {
