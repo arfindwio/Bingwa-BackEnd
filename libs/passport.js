@@ -30,6 +30,8 @@ pasport.use(
               create: {
                 fullName: profile.displayName,
                 profilePicture: profile.photos[0].value,
+                createdAt: formattedDate(new Date()),
+                updatedAt: formattedDate(new Date()),
               },
             },
           },
