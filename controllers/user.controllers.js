@@ -438,6 +438,7 @@ module.exports = {
     });
 
     const cookieOptions = {
+      path: "/",
       secure: true,
     };
 
