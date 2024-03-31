@@ -420,16 +420,15 @@ module.exports = {
       // Generate a modified name for the payment code
       const modifiedName = course.category.categoryName.replace(/\s+/g, "-");
 
-      // Calculate the total price for the payment
-      const totalPrice = course.promotion ? (course.price - course.promotion.discount * course.price) * (1 + 0.11) : course.price * 0.11 + course.price;
+      const paymentCodeOrder = `${modifiedName}-${generatedPaymentCode()}`;
 
       // Create a new payment record in the database
       let newPayment = await prisma.payment.create({
         data: {
-          amount: parseInt(totalPrice),
+          amount: parseInt(course.price),
           status: "Paid",
           methodPayment,
-          paymentCode: `${modifiedName}-${generatedPaymentCode()}`,
+          paymentCode: paymentCodeOrder,
           courseId: Number(course.id),
           userId: Number(req.user.id),
           createdAt: formattedDate(new Date()),
@@ -440,7 +439,7 @@ module.exports = {
       // Define payment parameters for Midtrans API
       let parameter = {
         transaction_details: {
-          order_id: `${modifiedName}-${generatedPaymentCode()}`,
+          order_id: paymentCodeOrder,
           gross_amount: parseInt(totalPrice),
         },
         customer_details: {

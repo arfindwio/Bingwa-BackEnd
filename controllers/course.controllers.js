@@ -14,6 +14,7 @@ module.exports = {
       const { price, isPremium, categoryId, promotionId, averageRating, totalDuration, createdAt, updatedAt } = req.body;
       const file = req.file;
       let imageURL;
+      let finalPrice = price;
 
       if (isPremium !== undefined || averageRating !== undefined || totalDuration !== undefined || !file || createdAt !== undefined || updatedAt !== undefined)
         throw new CustomError(400, "isPremium, averageRating, totalDuration, courseImg, createdAt, or updatedAt cannot be provided during course creation");
@@ -38,6 +39,8 @@ module.exports = {
         });
 
         if (!promotion) throw new CustomError(404, "Promotion not found");
+
+        finalPrice = price - promotion.discount * price;
       }
 
       const finalPromotionId = updatedIsPremium ? (!promotionId || promotionId === "null" || promotionId === null ? null : Number(promotionId)) : null;
@@ -57,7 +60,7 @@ module.exports = {
       const newCourse = await prisma.course.create({
         data: {
           ...req.body,
-          price: parseInt(price),
+          price: parseInt(finalPrice),
           isPremium: updatedIsPremium,
           courseImg: imageURL,
           promotionId: finalPromotionId,
@@ -84,6 +87,7 @@ module.exports = {
       const { courseName, level, aboutCourse, targetAudience, learningMaterial, mentor, videoURL, forumURL, price, isPremium, categoryId, promotionId, averageRating, totalDuration, createdAt, updatedAt } = req.body;
       const file = req.file;
       let imageURL;
+      let finalPrice = price;
 
       // Check if the course to be updated exists
       const course = await prisma.course.findUnique({
@@ -136,6 +140,8 @@ module.exports = {
         });
 
         if (!promotion) throw new CustomError(404, "Promotion not found");
+
+        finalPrice = price - promotion.discount * price;
       }
 
       const finalPromotionId = updatedIsPremium ? (!promotionId || promotionId === "null" || promotionId === null ? null : Number(promotionId)) : null;
@@ -165,7 +171,7 @@ module.exports = {
           mentor,
           videoURL,
           forumURL,
-          price: parseInt(price),
+          price: parseInt(finalPrice),
           isPremium: updatedIsPremium,
           courseImg: imageURL,
           promotionId: finalPromotionId,
