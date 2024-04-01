@@ -7,12 +7,26 @@ const { PORT = 8000 } = process.env;
 
 const router = require("./routes");
 const { CustomError, errorHandler } = require("./utils/errorHandler");
+const { promotionCheck } = require("./utils/cronJobs");
 
 app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
+
+promotionCheck();
+
+app.get("/", (req, res, next) => {
+  try {
+    res.json({
+      success: true,
+      message: "Hello Welcome To Bingwa Back-End",
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 app.use(router);
 

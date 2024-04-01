@@ -32,9 +32,7 @@ module.exports = {
       const { methodPayment, createdAt, updatedAt } = req.body;
       const PPN = 11 / 100;
 
-      if (createdAt !== undefined || updatedAt !== undefined) {
-        throw new CustomError(400, "createdAt or updateAt cannot be provided during payment creation");
-      }
+      if (createdAt !== undefined || updatedAt !== undefined) throw new CustomError(400, "createdAt or updateAt cannot be provided during payment creation");
 
       const course = await prisma.course.findFirst({
         where: {
@@ -49,13 +47,9 @@ module.exports = {
         },
       });
 
-      if (!course) {
-        throw new CustomError(404, `Course Not Found With Id ${idCourse}`);
-      }
+      if (!course) throw new CustomError(404, `Course Not Found With Id ${idCourse}`);
 
-      if (!course.isPremium) {
-        throw new CustomError(400, `Course Free Not Able to Buy`);
-      }
+      if (!course.isPremium) throw new CustomError(400, `Course Free Not Able to Buy`);
 
       const statusEnrollUser = await prisma.enrollment.findFirst({
         where: {
@@ -64,9 +58,7 @@ module.exports = {
         },
       });
 
-      if (statusEnrollUser) {
-        throw new CustomError(400, `User Already Enrolled in this Course`);
-      }
+      if (statusEnrollUser) throw new CustomError(400, `User Already Enrolled in this Course`);
 
       const modifiedName = course.category.categoryName.replace(/\s+/g, "-");
 
@@ -79,9 +71,7 @@ module.exports = {
         amount = amount - (amount * promotion.discount) / 100;
       }
 
-      if (!methodPayment || typeof methodPayment !== "string") {
-        throw new CustomError(400, "Bad Request for method payment");
-      }
+      if (!methodPayment || typeof methodPayment !== "string") throw new CustomError(400, "Bad Request for method payment");
 
       const newPayment = await prisma.payment.create({
         data: {
