@@ -2,6 +2,8 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const cron = require("node-cron");
 
+const { formattedDate } = require("./formattedDate");
+
 module.exports = {
   promotionCheck: () => {
     cron.schedule("0 0 * * *", async function () {
@@ -24,6 +26,29 @@ module.exports = {
               },
             });
           }
+        }
+      }
+    });
+  },
+  reminderUsers: () => {
+    cron.schedule("0 0 * * *", async function () {
+      const enrollments = await prisma.enrollment.findMany();
+
+      for (const enrollment of enrollments) {
+        const lastAccess = new Date(enrollment.lastAccess);
+        const threeDaysAgo = new Date();
+        threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+        if (lastAccess < threeDaysAgo) {
+          await prisma.notification.create({
+            data: {
+              title: "Reminder",
+              message: "You haven't updated your progress in the last 3 days. Please continue learning.",
+              userId: enrollment.userId,
+              createdAt: formattedDate(new Date()),
+              updatedAt: formattedDate(new Date()),
+            },
+          });
         }
       }
     });
