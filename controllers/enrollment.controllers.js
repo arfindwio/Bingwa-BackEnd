@@ -218,25 +218,6 @@ module.exports = {
         },
       });
 
-      // Schedule a reminder notification if user has incomplete lessons after 24 hours
-      setTimeout(async () => {
-        const allTracking = await prisma.tracking.findMany({
-          where: { userId: Number(req.user.id), status: true },
-        });
-
-        if (allTracking.length === 0 || !allTracking[0].status) {
-          await prisma.notification.create({
-            data: {
-              title: "Reminder",
-              message: "You have incomplete lessons. Please continue your learning.",
-              userId: Number(req.user.id),
-              createdAt: formattedDate(new Date()),
-              updatedAt: formattedDate(new Date()),
-            },
-          });
-        }
-      }, 3 * 24 * 60 * 60 * 1000);
-
       delete enrollCourse.id;
       delete enrollCourse.preparationCheck;
       delete enrollCourse.userId;

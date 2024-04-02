@@ -6,8 +6,6 @@ const { CustomError } = require("../utils/errorHandler");
 const { formattedDate } = require("../utils/formattedDate");
 const { getPagination } = require("../utils/getPagination");
 
-let reminderTimeout;
-
 module.exports = {
   createLesson: catchAsync(async (req, res, next) => {
     try {
@@ -91,38 +89,6 @@ module.exports = {
             },
           });
 
-          if (reminderTimeout) {
-            clearTimeout(reminderTimeout);
-          }
-
-          // Schedule a progress update reminder if there are incomplete lessons
-          if (falseCount > 0) {
-            reminderTimeout = setTimeout(async () => {
-              const latestTrueTracking = allTracking
-                .filter((item) => item.status === true)
-                .reduce(
-                  (latest, current) => (new Date(current.updatedAt).getTime() > new Date(latest.updatedAt).getTime() ? current : latest),
-                  { updatedAt: 0 } // Provide an initial value with a timestamp of 0
-                );
-
-              const lastUpdate = new Date(latestTrueTracking.updatedAt).getTime();
-              const currentTime = new Date().getTime();
-              const timeDifference = currentTime - lastUpdate;
-
-              // Send a reminder notification if no progress update in the last 3 days
-              if (timeDifference >= 3 * 24 * 60 * 60 * 1000) {
-                return prisma.notification.create({
-                  data: {
-                    title: "Reminder",
-                    message: "You haven't updated your progress in the last 3 days. Please continue learning.",
-                    userId: Number(enrollment.userId),
-                    createdAt: formattedDate(new Date()),
-                    updatedAt: formattedDate(new Date()),
-                  },
-                });
-              }
-            }, 3 * 24 * 60 * 60 * 1000);
-          }
           return { tracking, updatedEnrollment };
         })
       );
