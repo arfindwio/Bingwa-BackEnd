@@ -68,7 +68,8 @@ model Course {
   videoURL         String
   forumURL         String
   totalDuration    Int          @default(0)
-  courseImg        String?
+  courseImg        String
+  countView        Int          @default(0)
   createdAt        String
   updatedAt        String
   chapter          Chapter[]
@@ -128,6 +129,7 @@ model Enrollment {
   progress         Decimal @default(0)
   preparationCheck Boolean @default(false)
   userId           Int?
+  lastAccessed     String
   createdAt        String
   updatedAt        String
   user             User?   @relation(fields: [userId], references: [id])
