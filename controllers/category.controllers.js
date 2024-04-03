@@ -47,7 +47,6 @@ module.exports = {
       next(err);
     }
   }),
-
   showCategory: catchAsync(async (req, res, next) => {
     try {
       const { search, page = 1, limit = 10 } = req.query;
