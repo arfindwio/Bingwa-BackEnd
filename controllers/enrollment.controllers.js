@@ -52,6 +52,7 @@ module.exports = {
           },
         },
       });
+
       return res.status(200).json({
         status: true,
         message: "Get all enrollments successful",
@@ -67,9 +68,7 @@ module.exports = {
       const courseId = req.params.courseId;
 
       // Validate if enrollmentId is a number
-      if (isNaN(courseId)) {
-        throw new CustomError(400, "Invalid courseId provided");
-      }
+      if (isNaN(courseId)) throw new CustomError(400, "Invalid courseId provided");
 
       // Retrieve details of the specified enrollment, including associated course details
       let enrollment = await prisma.enrollment.findFirst({
@@ -116,9 +115,14 @@ module.exports = {
       });
 
       // Return an error if the enrollment is not found
-      if (!enrollment) {
-        throw new CustomError(404, "Enrollment not found");
-      }
+      if (!enrollment) throw new CustomError(404, "Enrollment not found");
+
+      await prisma.enrollment.update({
+        where: { id: Number(enrollment.id) },
+        data: {
+          lastAccessed: formattedDate(new Date()),
+        },
+      });
 
       return res.status(200).json({
         status: true,
@@ -172,6 +176,7 @@ module.exports = {
         data: {
           userId: Number(req.user.id),
           courseId: Number(courseId),
+          lastAccessed: formattedDate(new Date()),
           createdAt: formattedDate(new Date()),
           updatedAt: formattedDate(new Date()),
         },

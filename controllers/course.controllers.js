@@ -282,6 +282,13 @@ module.exports = {
 
       if (!course) throw new CustomError(404, `Course Not Found`);
 
+      await prisma.course.update({
+        where: { id: Number(course.id) },
+        data: {
+          countView: course.countView + 1,
+        },
+      });
+
       res.status(200).json({
         status: true,
         message: `Get Detail Course successful`,
