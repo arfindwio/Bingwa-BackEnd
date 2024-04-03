@@ -14,9 +14,6 @@ MOOC (Massive Open Online Course) app is a versatile online learning platform th
 ## Authors
 
 - Arfin Dwi Octavianto
-- Moh Hafid Nur Firmansyah
-- Shera Alice Ayutri
-- Muhammad Afif Mu'tashim
 
 ## Installation
 
@@ -31,6 +28,8 @@ MOOC (Massive Open Online Course) app is a versatile online learning platform th
 
    ```bash
    npm install
+   # or
+   yarn install
    ```
 
 3. Set up environment variables:
@@ -49,6 +48,12 @@ For development with auto-restart (nodemon):
 
 ```bash
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
 ## API Documentation

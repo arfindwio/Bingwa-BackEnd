@@ -31,11 +31,11 @@ module.exports = {
     });
   },
   reminderUsers: () => {
-    cron.schedule("0 0 * * *", async function () {
+    cron.schedule("0 0 1 */2 *", async function () {
       const enrollments = await prisma.enrollment.findMany();
 
       for (const enrollment of enrollments) {
-        const lastAccess = new Date(enrollment.lastAccess);
+        const lastAccess = new Date(enrollment.lastAccessed);
         const threeDaysAgo = new Date();
         threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
