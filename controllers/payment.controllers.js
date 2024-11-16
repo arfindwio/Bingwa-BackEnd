@@ -352,18 +352,6 @@ module.exports = {
         throw new CustomError(400, "createdAt or updateAt cannot be provided during payment creation");
       }
 
-      // Extract month and year from expiryDate
-      let month = expiryDate.slice(0, 2);
-      let year = expiryDate.slice(3);
-
-      // Set the Midtrans API URL based on the environment
-      const apiUrl = isProduction ? `https://api.midtrans.com/v2/token?client_key=${PAYMENT_PROD_CLIENT_KEY}` : `https://api.sandbox.midtrans.com/v2/token?client_key=${PAYMENT_DEV_CLIENT_KEY}`;
-
-      // Get card token from Midtrans API
-      const response = await axios.get(`${apiUrl}&card_number=${cardNumber}&card_cvv=${cvv}&card_exp_month=${month}&card_exp_year=${`20${year}`}`);
-
-      const token_id = response.data.token_id;
-
       // Find user and course details
       const user = await prisma.user.findUnique({
         where: { id: Number(req.user.id) },
@@ -409,22 +397,7 @@ module.exports = {
 
       // Generate a modified name for the payment code
       const modifiedName = course.category.categoryName.replace(/\s+/g, "-");
-
       const paymentCodeOrder = `${modifiedName}-${generatedPaymentCode()}`;
-
-      // Create a new payment record in the database
-      let newPayment = await prisma.payment.create({
-        data: {
-          amount: parseInt(course.price),
-          status: "Paid",
-          methodPayment,
-          paymentCode: paymentCodeOrder,
-          courseId: Number(course.id),
-          userId: Number(req.user.id),
-          createdAt: formattedDate(new Date()),
-          updatedAt: formattedDate(new Date()),
-        },
-      });
 
       // Define payment parameters for Midtrans API
       let parameter = {
@@ -444,6 +417,18 @@ module.exports = {
         if (!cardNumber || !cvv || !expiryDate || bankName !== undefined || store !== undefined || message !== undefined) {
           throw new CustomError(400, "For Credit Card payments, please provide only card details (cardNumber, cvv, expiryDate). Other fields are not applicable.");
         }
+
+        // Extract month and year from expiryDate
+        let month = expiryDate.slice(0, 2);
+        let year = expiryDate.slice(3);
+
+        // Set the Midtrans API URL based on the environment
+        const apiUrl = isProduction ? `https://api.midtrans.com/v2/token?client_key=${PAYMENT_PROD_CLIENT_KEY}` : `https://api.sandbox.midtrans.com/v2/token?client_key=${PAYMENT_DEV_CLIENT_KEY}`;
+
+        // Get card token from Midtrans API
+        const response = await axios.get(`${apiUrl}&card_number=${cardNumber}&card_cvv=${cvv}&card_exp_month=${month}&card_exp_year=${`20${year}`}`);
+
+        const token_id = response.data.token_id;
 
         parameter.payment_type = "credit_card";
         parameter.credit_card = {
@@ -496,8 +481,8 @@ module.exports = {
       }
 
       if (methodPayment === "Counter") {
-        if (bankName !== undefined || cardNumber !== undefined || cvv !== undefined || expiryDate !== undefined || !store || !message) {
-          throw new CustomError(400, "Please provide only the required card details (cardNumber, cvv, expiryDate) for this payment method. Other fields are not applicable.");
+        if (bankName !== undefined || cardNumber !== undefined || cvv !== undefined || expiryDate !== undefined || !store) {
+          throw new CustomError(400, "store must be provided.");
         }
 
         parameter.payment_type = "cstore";
@@ -526,6 +511,20 @@ module.exports = {
 
         parameter.payment_type = "akulaku";
       }
+
+      // Create a new payment record in the database
+      let newPayment = await prisma.payment.create({
+        data: {
+          amount: parseInt(course.price),
+          status: "Paid",
+          methodPayment,
+          paymentCode: paymentCodeOrder,
+          courseId: Number(course.id),
+          userId: Number(req.user.id),
+          createdAt: formattedDate(new Date()),
+          updatedAt: formattedDate(new Date()),
+        },
+      });
 
       // Charge the transaction using Midtrans API
       let transaction = await core.charge(parameter);
@@ -595,30 +594,30 @@ module.exports = {
   // Controller to handle Midtrans payment notifications
   handlePaymentNotification: catchAsync(async (req, res, next) => {
     try {
-      // Extract payment notification data from the request body
-      let notification = {
-        currency: req.body.currency,
-        fraud_status: req.body.fraud_status,
-        gross_amount: req.body.gross_amount,
-        order_id: req.body.order_id,
-        payment_type: req.body.payment_type,
-        status_code: req.body.status_code,
-        status_message: req.body.status_message,
-        transaction_id: req.body.transaction_id,
-        transaction_status: req.body.transaction_status,
-        transaction_time: req.body.transaction_time,
-        merchant_id: req.body.merchant_id,
-      };
+      const { order_id, transaction_status, fraud_status } = req.body;
 
-      // Process the payment notification using Midtrans API
-      let data = await core.transaction.notification(notification);
+      const payment = await prisma.payment.findFirst({
+        where: { paymentCode: order_id },
+      });
+
+      if (!payment) throw new CustomError(404, "Payment not found");
+
+      let paymentStatus;
+      if (transaction_status === "capture" || transaction_status === "settlement") {
+        paymentStatus = fraud_status === "accept" ? "Paid" : "Failed";
+      } else if (transaction_status === "cancel" || transaction_status === "deny") {
+        paymentStatus = "Failed";
+      } else if (transaction_status === "expire") {
+        paymentStatus = "Expired";
+      } else {
+        paymentStatus = "Failed";
+      }
 
       // Update the payment status in the database
       const updatedPayment = await prisma.payment.update({
-        where: { paymentCode: data.order_id },
+        where: { id: Number(payment.id) },
         data: {
-          status: "Paid",
-          methodPayment: data.payment_type,
+          status: paymentStatus,
           updatedAt: formattedDate(new Date()),
         },
       });
@@ -627,6 +626,33 @@ module.exports = {
         status: true,
         message: "Payment notification processed successfully",
         data: { updatedPayment },
+      });
+    } catch (err) {
+      next(err);
+    }
+  }),
+
+  getStatusMidtrans: catchAsync(async (req, res, next) => {
+    try {
+      const { orderId } = req.params;
+
+      const payment = await prisma.payment.findFirst({
+        where: { paymentCode: orderId },
+      });
+
+      if (!payment) throw new CustomError(404, "Payment not found");
+
+      const response = await axios.get(`https://api.sandbox.midtrans.com/v2/${orderId}/status`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Basic U0ItTWlkLXNlcnZlci1CbGlWSjQ3cWJJaUlVOGI2RjZfSVNCUG46MDIxMzY1ODRBcmZpbg==",
+        },
+      });
+
+      res.status(200).json({
+        status: true,
+        message: "Payment status retrieved successfully",
+        data: response.data,
       });
     } catch (err) {
       next(err);
