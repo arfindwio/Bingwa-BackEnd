@@ -399,11 +399,13 @@ module.exports = {
       const modifiedName = course.category.categoryName.replace(/\s+/g, "-");
       const paymentCodeOrder = `${modifiedName}-${generatedPaymentCode()}`;
 
+      let amount = course.price + course.price * (11 / 100);
+
       // Define payment parameters for Midtrans API
       let parameter = {
         transaction_details: {
           order_id: paymentCodeOrder,
-          gross_amount: parseInt(totalPrice),
+          gross_amount: parseInt(amount),
         },
         customer_details: {
           first_name: user.userProfile.fullName,
