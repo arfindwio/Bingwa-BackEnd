@@ -95,6 +95,7 @@ module.exports = {
         data: {
           userId: Number(req.user.id),
           courseId: Number(idCourse),
+          lastAccessed: formattedDate(new Date()),
           createdAt: formattedDate(new Date()),
           updatedAt: formattedDate(new Date()),
         },
@@ -542,6 +543,7 @@ module.exports = {
         data: {
           userId: Number(req.user.id),
           courseId: Number(course.id),
+          lastAccessed: formattedDate(new Date()),
           createdAt: formattedDate(new Date()),
           updatedAt: formattedDate(new Date()),
         },
