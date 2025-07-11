@@ -9,7 +9,12 @@ const router = require("./routes");
 const { CustomError, errorHandler } = require("./utils/errorHandler");
 const { promotionCheck, reminderUsers } = require("./utils/cronJobs");
 
-app.use(cors());
+const corsOptions = {
+  origin: ["http://localhost:3000", "http://localhost:8000", "https://bingwa-back-end.vercel.app", "https://bingwa-front-end.vercel.app"],
+  methods: "GET,POST,PUT,DELETE",
+};
+
+app.use(cors(corsOptions));
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
