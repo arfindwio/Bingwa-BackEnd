@@ -15,13 +15,15 @@ const { PAYMENT_DEV_CLIENT_KEY, PAYMENT_DEV_SERVER_KEY, PAYMENT_PROD_CLIENT_KEY,
 
 // Setting the environment (true for production, false for development)
 const isProduction = false;
+const serverKeyMidtrans = isProduction ? PAYMENT_PROD_SERVER_KEY : PAYMENT_DEV_SERVER_KEY;
+const clientKeyMidtrans = isProduction ? PAYMENT_PROD_CLIENT_KEY : PAYMENT_DEV_CLIENT_KEY;
 
 // Initializing Midtrans CoreApi with appropriate keys based on the environment
 let core = new midtransClient.CoreApi({
   // Set to true if you want Production Environment (accept real transaction).
   isProduction: isProduction,
-  serverKey: isProduction ? PAYMENT_PROD_SERVER_KEY : PAYMENT_DEV_SERVER_KEY,
-  clientKey: isProduction ? PAYMENT_PROD_CLIENT_KEY : PAYMENT_DEV_CLIENT_KEY,
+  serverKey: serverKeyMidtrans,
+  clientKey: clientKeyMidtrans,
 });
 
 module.exports = {
@@ -429,7 +431,11 @@ module.exports = {
         const apiUrl = isProduction ? `https://api.midtrans.com/v2/token?client_key=${PAYMENT_PROD_CLIENT_KEY}` : `https://api.sandbox.midtrans.com/v2/token?client_key=${PAYMENT_DEV_CLIENT_KEY}`;
 
         // Get card token from Midtrans API
-        const response = await axios.get(`${apiUrl}&card_number=${cardNumber}&card_cvv=${cvv}&card_exp_month=${month}&card_exp_year=${`20${year}`}`);
+        const response = await axios.get(`${apiUrl}&card_number=${cardNumber}&card_cvv=${cvv}&card_exp_month=${month}&card_exp_year=${`20${year}`}`, {
+          headers: {
+            Authorization: `Basic ${Buffer.from(`${serverKeyMidtrans}:`).toString("base64")}`,
+          },
+        });
 
         const token_id = response.data.token_id;
 
